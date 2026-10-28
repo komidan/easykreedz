@@ -8,12 +8,12 @@ set -Euo pipefail
 # Configuration
 # ---------------------------------------------------------------------------- #
 
-# This script uses relative paths to the base `cstrike` folder.
-# Default: `$HOME/.local/share/Steam/steamapps/common/Half-life/cstrike`
-CSTRIKE_PATH="$HOME/.local/share/Steam/steamapps/common/Half-Life/cstrike"
+# Local cstrike folder. Used for AMXModX includes, `--install`, `--full-install`.
+# Default: `$HOME/.local/share/Steam/steamapps/common/Half-Life/cstrike`
+CSTRIKE_PATH="${CSTRIKE_PATH:-$HOME/.local/share/Steam/steamapps/common/Half-Life/cstrike}"
 
 # Directory to install compiled plugins to. Verify this before running command.
-INSTALL_DIR="$CSTRIKE_PATH/addons/amxmodx/plugins"
+INSTALL_DIR="${INSTALL_DIR:-$CSTRIKE_PATH/addons/amxmodx/plugins}"
 
 # Root project directory, folder containing `build.sh`.
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,6 +21,34 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Project Folders
 SCRIPTING_DIR="$ROOT_DIR/addons/amxmodx/scripting"
 PLUGINS_DIR="$ROOT_DIR/addons/amxmodx/plugins"
+BUILD_DIR="$ROOT_DIR/build"           # Release staging + finished zips
+
+# Name used for the release archive: <RELEASE_NAME>-<version>.zip
+RELEASE_NAME="easykreedz"
+
+# Folders (relative to the project root, mirroring `cstrike/`) that get packed
+# into the release .zip and copied by `--full-install`. Entries that don't
+# exist are skipped, so list anything you might use. Nested paths work too
+# (e.g. "addons/amxmodx/configs").
+#
+# Always handled for you:
+#   - addons/amxmodx/plugins/*.amxx is rebuilt fresh (no stale plugins)
+#   - addons/amxmodx/scripting is left out unless --with-source is passed
+FOLDERS_TO_ZIP=(
+    "addons"
+    "cfg"
+    "maps"
+    "models"
+    "sound"
+    "sprites"
+    "materials"
+    "gfx"
+    "resource"
+    "overviews"
+    "media"
+    "events"
+    "scripts"
+)
 
 # All folders to search for `.inc` files.
 INCLUDE_DIRS=(
@@ -32,6 +60,7 @@ INCLUDE_DIRS=(
 COMPILER="$ROOT_DIR/compiler/amxxpc"
 
 # Optional defines passed into the compiler, same as `#define` in plugins.
+# Must be NAME=value (a bare NAME is read as a file by amxxpc).
 SYMBOLS=(
     # "EXAMPLE=1"
 )
@@ -66,10 +95,17 @@ Running the script with no plugin names will compile every .sma found in
 the scripting folder, including subfolders.
 
 Options:
-    -h, --h                 Show this help message
-    -c, --clean             Delete compiled plugins, then exit
-    -C, --clean-and-build   Delete compiled plugins, then rebuild
-    -I, --install           Moves plugins to `INSTALL_DIR` (not config files)
+    -h, --help              Show this help message
+    -c, --clean             Delete compiled plugins and build/, then exit
+    -C, --clean-and-build   Delete compiled plugins and build/, then rebuild
+    -I, --install           Copy plugins to `INSTALL_DIR` (not config files)
+    -F, --full-install      Copy plugins AND every folder in FOLDERS_TO_ZIP
+                            into `CSTRIKE_PATH`. Overwrites files!
+    -r, --release [ver]     Build everything and package a release .zip in
+                            build/ (version defaults to `git describe`,
+                            else "dev")
+    -s, --with-source       Include addons/amxmodx/scripting in the release
+                            (or full install)
     -d, --debug <0-3>       Compile the plugins using debug levels
     -i, --include           Add extra include directories (repeatable)
     -D, --define <X[=Y]>    Define a symbol during compilation (repeatable)
@@ -78,6 +114,9 @@ Options:
 Environment:
     CSTRIKE_PATH            Local cstrike folder, used for relative paths
     INSTALL_DIR             Override where `--install` copies plugins to
+
+The release .zip is meant to be extracted straight into your `cstrike` folder.
+Edit FOLDERS_TO_ZIP at the top of this script to choose what gets packed.
 EOF
 }
 
@@ -107,7 +146,8 @@ need() {
 # Argument Parsing
 # ---------------------------------------------------------------------------- #
 
-CLEAN=0 REBUILD=0 INSTALL=0
+CLEAN=0 REBUILD=0 INSTALL=0 FULL_INSTALL=0 RELEASE=0 WITH_SOURCE=0
+VERSION=""
 SOURCES=()
 
 while [[ $# -gt 0 ]]; do
@@ -116,15 +156,37 @@ while [[ $# -gt 0 ]]; do
         -c|--clean)           CLEAN=1 ;;
         -C|--clean-and-build) CLEAN=1; REBUILD=1 ;;
         -I|--install)         INSTALL=1 ;;
+        -F|--full-install)    FULL_INSTALL=1 ;;
+        -r|--release)         RELEASE=1
+                              # Optional version argument
+                              if [[ -n "${2:-}" && "${2:0:1}" != "-" ]]; then
+                                  VERSION="$2"; shift
+                              fi ;;
+        -s|--with-source)     WITH_SOURCE=1 ;;
         -d|--debug)           need "$1" "${2:-}"; DEBUG="$2"; shift ;;
         -i|--include)         need "$1" "${2:-}"; INCLUDE_DIRS+=("$2"); shift ;;
-        -D|--define)          need "$1" "${2:-}"; SYMBOLS+=("$2"); shift ;;
+        -D|--define)          need "$1" "${2:-}"
+                              # amxxpc needs NAME=value; a bare NAME would be
+                              # read as another source file (NAME.p).
+                              [[ "$2" == *=* ]] && SYMBOLS+=("$2") || SYMBOLS+=("$2=1")
+                              shift ;;
         -v|--verbose)         need "$1" "${2:-}"; VERBOSE="$2"; shift ;;
         -*)                   die "Unknown option: $1 (see --help)" ;;
         *)                    SOURCES+=("$1") ;;
     esac
     shift
 done
+
+# ---------------------------------------------------------------------------- #
+# Clean
+# ---------------------------------------------------------------------------- #
+
+if [[ $CLEAN -eq 1 ]]; then
+    rm -f "$PLUGINS_DIR"/*.amxx
+    rm -rf "$BUILD_DIR"
+    info "Cleaned compiled plugins and build folder"
+    [[ $REBUILD -eq 0 ]] && exit 0
+fi
 
 # ---------------------------------------------------------------------------- #
 # Setup / Sanity Checks
@@ -152,10 +214,26 @@ if [[ $INSTALL -eq 1 && ! -d "$INSTALL_DIR" ]]; then
     die "Install directory does not exist: $INSTALL_DIR"
 fi
 
+if [[ $FULL_INSTALL -eq 1 && ! -d "$CSTRIKE_PATH" ]]; then
+    die "cstrike directory does not exist: $CSTRIKE_PATH"
+fi
+
+if [[ $RELEASE -eq 1 || $FULL_INSTALL -eq 1 ]]; then
+    # These must always contain every plugin.
+    if [[ ${#SOURCES[@]} -gt 0 ]]; then
+        die "--release and --full-install build all plugins; don't pass plugin names"
+    fi
+fi
+
+if [[ $RELEASE -eq 1 && -z "$VERSION" ]]; then
+    VERSION="$(git -C "$ROOT_DIR" describe --tags --always --dirty 2>/dev/null || true)"
+    VERSION="${VERSION:-dev}"
+fi
+
 mkdir -p "$PLUGINS_DIR" || die "Couldn't create $PLUGINS_DIR"
 
 FLAGS=("${EXTRA_FLAGS[@]}")
-FLAGS+=("${SYMBOLS[@]}")
+FLAGS+=(${SYMBOLS[@]+"${SYMBOLS[@]}"})
 
 for dir in "${INCLUDE_DIRS[@]}"; do
     FLAGS+=("-i$dir")
@@ -171,12 +249,6 @@ if [[ ${#SOURCES[@]} -eq 0 ]]; then
         -prune -o -name '*.sma' -print | sort)
 fi
 
-if [[ $CLEAN -eq 1 ]]; then
-    rm -f "$PLUGINS_DIR"/*.amxx
-    info "Cleaned compiled plugins"
-    [[ $REBUILD -ne 0 ]] && exit 0
-fi
-
 # ---------------------------------------------------------------------------- #
 # Compile
 # ---------------------------------------------------------------------------- #
@@ -184,7 +256,7 @@ fi
 BUILT=()
 FAILED=0
 
-for src in "${SOURCES[@]}"; do
+for src in ${SOURCES[@]+"${SOURCES[@]}"}; do
     # Resolve relative source paths against the scripting directory.
     if [[ ! -f "$src" ]]; then
         src="$SCRIPTING_DIR/${src%.sma}"
@@ -214,11 +286,100 @@ for src in "${SOURCES[@]}"; do
 done
 
 # ---------------------------------------------------------------------------- #
+# Packaging helpers
+# ---------------------------------------------------------------------------- #
+
+stage_files() {
+    # stage_files <staging dir>
+    # Builds the tree that mirrors `cstrike/` from FOLDERS_TO_ZIP + plugins.
+    local stage="$1" folder
+    rm -rf "$stage"
+    mkdir -p "$stage"
+
+    cd "$ROOT_DIR" || die "Couldn't enter $ROOT_DIR"
+
+    for folder in "${FOLDERS_TO_ZIP[@]}"; do
+        folder="${folder#/}"; folder="${folder%/}"
+        [[ -e "$folder" ]] && cp -r --parents "$folder" "$stage/"
+    done
+
+    # Source is opt-in.
+    rm -rf "$stage/addons/amxmodx/scripting"
+    if [[ $WITH_SOURCE -eq 1 && -d "addons/amxmodx/scripting" ]]; then
+        cp -r --parents "addons/amxmodx/scripting" "$stage/"
+    fi
+
+    # Only ship plugins that were just built, never stale ones.
+    rm -f "$stage/addons/amxmodx/plugins/"*.amxx
+    mkdir -p "$stage/addons/amxmodx/plugins"
+    cp -f "${BUILT[@]}" "$stage/addons/amxmodx/plugins/"
+
+    # Placeholders are for git only, never ship them.
+    find "$stage" -name '.gitkeep' -delete
+}
+
+make_zip() {
+    # make_zip <staging dir> <output zip>
+    local stage="$1" zip_out="$2"
+    rm -f "$zip_out"
+    if command -v zip >/dev/null 2>&1; then
+        (cd "$stage" && zip -qr "$zip_out" .)
+    elif command -v python3 >/dev/null 2>&1; then
+        python3 - "$stage" "$zip_out" <<'PY'
+import os, sys, zipfile
+stage, out = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    for root, _, files in os.walk(stage):
+        for f in sorted(files):
+            p = os.path.join(root, f)
+            z.write(p, os.path.relpath(p, stage))
+PY
+    else
+        die "Need either 'zip' or 'python3' to create the release archive"
+    fi
+}
+
+# ---------------------------------------------------------------------------- #
+# Release
+# ---------------------------------------------------------------------------- #
+
+build_release() {
+    local stage="$BUILD_DIR/stage"
+    local zip_out="$BUILD_DIR/$RELEASE_NAME-$VERSION.zip"
+
+    info "Packaging release $VERSION"
+    stage_files "$stage"
+    make_zip "$stage" "$zip_out"
+    rm -rf "$stage"
+    good "$(realpath --relative-to="$ROOT_DIR" "$zip_out")"
+}
+
+if [[ $RELEASE -eq 1 ]]; then
+    if [[ $FAILED -gt 0 || ${#BUILT[@]} -eq 0 ]]; then
+        warn "Skipping release: build failed or produced no plugins"
+    else
+        build_release
+    fi
+fi
+
+# ---------------------------------------------------------------------------- #
 # Install / Summary
 # ---------------------------------------------------------------------------- #
 
 if [[ $INSTALL -eq 1 && ${#BUILT[@]} -gt 0 ]]; then
     cp -f "${BUILT[@]}" "$INSTALL_DIR/" && info "Installed ${#BUILT[@]} plugins"
+fi
+
+if [[ $FULL_INSTALL -eq 1 ]]; then
+    if [[ $FAILED -gt 0 || ${#BUILT[@]} -eq 0 ]]; then
+        warn "Skipping full install: build failed or produced no plugins"
+    else
+        stage="$BUILD_DIR/stage"
+        stage_files "$stage"
+        cp -r "$stage/." "$CSTRIKE_PATH/"
+        rm -rf "$stage"
+        info "Full install to $CSTRIKE_PATH (${#BUILT[@]} plugins + folders)"
+    fi
 fi
 
 info "Done: ${#BUILT[@]} compiled, $FAILED failed"
