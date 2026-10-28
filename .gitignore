@@ -1,0 +1,5 @@
+# Folder that contains release zips
+build/
+
+# Helix ignore files for file-picker
+.ignore
