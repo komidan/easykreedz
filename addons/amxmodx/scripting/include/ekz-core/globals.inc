@@ -9,5 +9,9 @@
 #endif
 #define __EKZ_GLOBALS__
 
-#define EKZ_TAG "EKZ >"
 #define MAXPLAYERS 33
+
+// EasyKreedz Specific
+#define EKZ_CHAT_TAG     "^7EKZ ^4> ^1"    // Uses CromChat.inc
+#define EKZ_MENU_TAG     "\d[\rEKZ\d] \w"  // Uses built-in coloring ()
+#define EKZ_CFG_DIR      "easykreedz/"
