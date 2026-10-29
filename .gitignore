@@ -3,3 +3,7 @@ build/
 
 # Helix ignore files for file-picker
 .ignore
+
+# personal files
+PERSONAL.md
+PERSONAL-*
