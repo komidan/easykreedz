@@ -1,6 +1,9 @@
 # Folder that contains release zips
 build/
 
+# Plugin binaries
+plugins/
+
 # Helix ignore files for file-picker
 .ignore
 

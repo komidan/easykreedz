@@ -5,4 +5,5 @@
  * more about that here: https://semver.org/.
  */
 
-#define EKZ_VERSION "0.1.0-dev"
+#define EKZ_VERSION "0.1.0dev"
+#define EKZ_GITHUB  "https://github.com/komidan/easykreedz"
