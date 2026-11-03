@@ -4,6 +4,8 @@
 
 #define _cromchat_included
 
+#pragma semicolon 0
+
 #include <amxmodx>
 #include <fakemeta>
 
@@ -115,31 +117,31 @@ new CC_PREFIX[CC_MAX_PREFIX_SIZE]
 	#if !defined CC_SYM_CHAT_NORMAL
 		#define CC_SYM_CHAT_NORMAL "&x01"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_TEAM
 		#define CC_SYM_CHAT_TEAM   "&x03"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_GREEN
 		#define CC_SYM_CHAT_GREEN  "&x04"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_WHITE
 		#define CC_SYM_CHAT_WHITE  "&x05"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_BLUE
 		#define CC_SYM_CHAT_BLUE   "&x06"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_RED
 		#define CC_SYM_CHAT_RED    "&x07"
 	#endif
-	
+
 	#if !defined CC_SYM_CHAT_NOPREF
 		#define CC_SYM_CHAT_NOPREF "&x00"
 	#endif
-#else	
+#else
 	#if CC_COLORS_TYPE == CC_COLORS_CROMCHAT
 		#define CC_SYM_CHAT_NORMAL "&x01"
 		#define CC_SYM_CHAT_TEAM   "&x03"
@@ -149,7 +151,7 @@ new CC_PREFIX[CC_MAX_PREFIX_SIZE]
 		#define CC_SYM_CHAT_RED    "&x07"
 		#define CC_SYM_CHAT_NOPREF "&x00"
 	#endif
-	
+
 	#if CC_COLORS_TYPE == CC_COLORS_SHORT
 		#define CC_SYM_CHAT_NORMAL "!n"
 		#define CC_SYM_CHAT_TEAM   "!t"
@@ -159,7 +161,7 @@ new CC_PREFIX[CC_MAX_PREFIX_SIZE]
 		#define CC_SYM_CHAT_RED    "!r"
 		#define CC_SYM_CHAT_NOPREF "!p"
 	#endif
-	
+
 	#if CC_COLORS_TYPE == CC_COLORS_NAMED
 		#define CC_SYM_CHAT_NORMAL "{normal}"
 		#define CC_SYM_CHAT_TEAM   "{team}"
@@ -169,7 +171,7 @@ new CC_PREFIX[CC_MAX_PREFIX_SIZE]
 		#define CC_SYM_CHAT_RED    "{red}"
 		#define CC_SYM_CHAT_NOPREF "{nopref}"
 	#endif
-	
+
 	#if CC_COLORS_TYPE == CC_COLORS_NAMED_SHORT
 		#define CC_SYM_CHAT_NORMAL "{n}"
 		#define CC_SYM_CHAT_TEAM   "{t}"
@@ -179,7 +181,7 @@ new CC_PREFIX[CC_MAX_PREFIX_SIZE]
 		#define CC_SYM_CHAT_RED    "{r}"
 		#define CC_SYM_CHAT_NOPREF "{p}"
 	#endif
-	
+
 	#if CC_COLORS_TYPE == CC_COLORS_STANDARD
 		#define CC_SYM_CHAT_NORMAL "^1"
 		#define CC_SYM_CHAT_TEAM   "^3"
@@ -211,7 +213,7 @@ stock CC_SendMessage(id, const input[], any:...)
 {
 	_CC_ModInit()
 	static iPlayers[CC_MAX_PLAYERS], iPnum
-	
+
 	if(id)
 	{
 		if(!is_user_connected(id))
@@ -222,19 +224,19 @@ stock CC_SendMessage(id, const input[], any:...)
 	else
 	{
 		get_players(iPlayers, iPnum, CC_FILTERING_FLAGS)
-		
+
 		if(!iPnum)
 		{
 			return 0
 		}
 	}
-	
+
 	static szMessage[CC_MAX_MESSAGE_SIZE], bool:bNoPrefix, i
 	vformat(szMessage[1], charsmax(szMessage), input, 3)
 	szMessage[0] = 0x01
-	
+
 	bNoPrefix = bool:(equal(szMessage[1], CC_NO_PREFIX, charsmax(CC_NO_PREFIX)) || equal(szMessage[2], CC_NO_PREFIX, charsmax(CC_NO_PREFIX)))
-	
+
 	if(bNoPrefix)
 	{
 		replace(szMessage, charsmax(szMessage), CC_NO_PREFIX, "")
@@ -250,7 +252,7 @@ stock CC_SendMessage(id, const input[], any:...)
 			format(szMessage, charsmax(szMessage), "%s%s %s", CC_SYM_CHAT_DEF_NORMAL, CC_PREFIX, szMessage)
 		}
 	}
-	
+
 	for(i = 0; i < sizeof(CC_REPLACE_COLORS) - 1; i += 2)
 	{
 		if(CC_IS_CSCZ)
@@ -262,7 +264,7 @@ stock CC_SendMessage(id, const input[], any:...)
 			replace_string(szMessage, charsmax(szMessage), CC_REPLACE_COLORS[i], "")
 		}
 	}
-		
+
 	for(i = 0; i < sizeof(CC_PLUS_COLORS_STR); i++)
 	{
 		if(contain(szMessage, CC_PLUS_COLORS_STR[i]) != -1)
@@ -287,7 +289,7 @@ stock CC_SendMessage(id, const input[], any:...)
 			break
 		}
 	}
-	
+
 	if(id)
 	{
 		_CC_WriteMessage(id, szMessage)
@@ -346,12 +348,12 @@ stock CC_GroupMessage(const flags[] = "", const params[] = "", const input[], an
 	static szMessage[CC_MAX_MESSAGE_SIZE], iPlayers[CC_MAX_PLAYERS], iPnum
 	vformat(szMessage, charsmax(szMessage), input, 4)
 	get_players(iPlayers, iPnum, flags, params)
-	
+
 	if(!iPnum)
 	{
 		return 0
 	}
-	
+
 	static bool:bForce, iColor, i
 
 	for(bForce = CC_COLOR_FORCE, iColor = CC_COLOR_PLAYER_INDEX, i = 0; i < iPnum; i++)
@@ -359,7 +361,7 @@ stock CC_GroupMessage(const flags[] = "", const params[] = "", const input[], an
 		CC_SetColor(iColor, bForce)
 		CC_SendMessage(iPlayers[i], szMessage)
 	}
-	
+
 	return strlen(szMessage)
 }
 
@@ -378,20 +380,20 @@ stock CC_SendAdminMessage(const flags[] = "", bool:allflags = true, const input[
 	static szMessage[CC_MAX_MESSAGE_SIZE], iPlayers[CC_MAX_PLAYERS], iPnum
 	vformat(szMessage, charsmax(szMessage), input, 4)
 	get_players(iPlayers, iPnum, CC_FILTERING_FLAGS)
-	
+
 	if(!iPnum)
 	{
 		return 0
 	}
-	
+
 	static bool:bForce, iColor, iCount, iFlags, iPlayer, i
 	iFlags = read_flags(flags)
 	iCount = 0
-	
+
 	for(bForce = CC_COLOR_FORCE, iColor = CC_COLOR_PLAYER_INDEX, i = 0; i < iPnum; i++)
 	{
 		iPlayer = iPlayers[i]
-		
+
 		switch(allflags)
 		{
 			case true:
@@ -409,18 +411,18 @@ stock CC_SendAdminMessage(const flags[] = "", bool:allflags = true, const input[
 				}
 			}
 		}
-		
+
 		iCount++
 
 		CC_SetColor(iColor, bForce)
 		CC_SendMessage(iPlayer, szMessage)
 	}
-	
+
 	if(!iCount)
 	{
 		return 0
 	}
-	
+
 	return strlen(szMessage)
 }
 
@@ -440,12 +442,12 @@ stock CC_LogMessage(id, const file[] = "", const input[], any:...)
 {
 	static szMessage[CC_MAX_MESSAGE_SIZE]
 	vformat(szMessage, charsmax(szMessage), input, 4)
-	
+
 	if(!CC_SendMessage(id, szMessage))
 	{
 		return 0
 	}
-		
+
 	CC_RemoveColors(szMessage, charsmax(szMessage))
 	file[0] ? log_to_file(file, szMessage) : log_amx(szMessage)
 	return strlen(szMessage)
@@ -735,7 +737,7 @@ stock CC_ShowActivityKey(const without[], const with[], const name[], any:...)
 stock CC_RemoveColors(message[], len, bool:chat = true, bool:menu = false)
 {
 	static i
-	
+
 	if(chat)
 	{
 		for(i = 0; i < sizeof(CC_COLORS_LIST); i++)
@@ -743,7 +745,7 @@ stock CC_RemoveColors(message[], len, bool:chat = true, bool:menu = false)
 			replace_string(message, len, CC_COLORS_LIST[i], "")
 		}
 	}
-	
+
 	if(menu)
 	{
 		for(i = 0; i < sizeof(CC_MENU_COLORS); i++)
@@ -808,7 +810,7 @@ stock CC_SetPrefix(const prefix[])
 		CC_RemoveColors(CC_PREFIX, charsmax(CC_PREFIX))
 	}
 }
-	
+
 /**
  * Removes the global message prefix.
  *
@@ -902,7 +904,7 @@ stock _CC_WriteMessage(id, const message[])
 		write_byte(id)
 	}
 
-	write_string(CC_PLAYER_ITEM_PHRASE) 
+	write_string(CC_PLAYER_ITEM_PHRASE)
 	write_string(message)
 	message_end()
 }
@@ -934,7 +936,7 @@ stock _CC_ModInit()
 }
 
 /**
- * Stores the amx_show_activity pointer for use with "ShowActivity" functions.     	
+ * Stores the amx_show_activity pointer for use with "ShowActivity" functions.
  *
  * @noreturn
  */

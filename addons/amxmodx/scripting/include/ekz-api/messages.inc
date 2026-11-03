@@ -14,10 +14,20 @@
     #define EKZ_CHAT_TAG "^7EKZ ^4> ^1"
 #endif
 #if !defined EKZ_CONSOLE_TAG
-    #define EKZ_CONSOLE_TAG "[EKZ]"
+    #define EKZ_CONSOLE_TAG "[EKZ] "
 #endif
 
+#if !defined CC_COLORS_TYPE
+    #define CC_COLORS_TYPE CC_COLORS_STANDARD
+#endif
+
+#include <thirdparty/cromchat>
 #include <ekz-core/globals>
+
+stock ekz_chat_init()
+{
+    CC_SetPrefix(EKZ_CHAT_TAG);
+}
 
 /**
  * Sends a message to user's chat using EKZ_CHAT_TAG as a prefix.
@@ -33,7 +43,7 @@ stock ekz_send_chat(id, const fmt[], ...)
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
 
-    CC_SendMessage(id, "%s%s", CHAT_TAG, buffer);
+    CC_SendMessage(id, "%s", buffer);
 }
 
 /**
@@ -68,11 +78,10 @@ stock ekz_send_chat_all(const fmt[], ...)
  */
 stock ekz_send_console(id, const fmt[], ...)
 {
-
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
 
-    print_console(id, "%s%s", CONSOLE_TAG, buffer);
+    client_print(id, print_console, "%s%s", EKZ_CONSOLE_TAG, buffer);
 }
 
 /**
