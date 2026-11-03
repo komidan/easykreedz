@@ -10,6 +10,7 @@
 #include <amxconst>
 
 #include <ekz-api/menu>
+#include <ekz-api/messages>
 
 #include <ekz-core/globals>
 #include <ekz-core/version>
@@ -35,6 +36,8 @@ public plugin_init()
     register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
     register_clcmd("say /plman", "cmd_Menu", ADMIN_CFG, "Open the EKZ Plugin Manager");
+
+    ekz_chat_init();
 }
 
 public cmd_Menu(id, level, cid)
@@ -91,21 +94,41 @@ public menu_handler_plman(id, menu, item)
 
     new info[8];
     menu_item_getinfo(menu, item, _, info, charsmax(info));
+    new plugin = str_to_num(info);
 
     menu_destroy(menu);
 
-    if (item == 0) {
-        // save options...
+    if (item != 0) {
+        g_iPluginStates[plugin]++;
+
+        // NOTE: Should this be swapped for modulos?
+        // Wrap back to STATE_ENABLED
+        if (g_iPluginStates[plugin] > STATE_DISABLED) {
+            g_iPluginStates[plugin] = STATE_ENABLED;
+        }
+
+        ShowPluginManagerMenu(id);
         return PLUGIN_HANDLED;
     }
 
-    new plugin = str_to_num(info);
-    g_iPluginStates[plugin]++;
-
-    if (g_iPluginStates[plugin] > STATE_DISABLED) {
-        g_iPluginStates[plugin] = STATE_ENABLED;
+    for (new i = 0; i < sizeof(PLUGINS); i++) {
+        switch (g_iPluginStates[i]) {
+            case STATE_ENABLED: {
+                unpause("ac", PLUGINS[i]);
+                ekz_send_console(id, "ENABLED: %s", PLUGINS[i]);
+            }
+            case STATE_PAUSED: {
+                pause("ac", PLUGINS[i]);
+                ekz_send_console(id, "PAUSED: %s", PLUGINS[i]);
+            }
+            case STATE_DISABLED: {
+                pause("dc", PLUGINS[i]);
+                ekz_send_console(id, "DISABLED: %s", PLUGINS[i]);
+            }
+        }
     }
 
+    ekz_send_chat(id, "Ran plugin settings. Check console for details.");
     ShowPluginManagerMenu(id);
 
     return PLUGIN_HANDLED;

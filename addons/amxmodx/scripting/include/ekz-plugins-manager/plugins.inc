@@ -3,9 +3,10 @@
  *
  * List of plugins that can be managed by the plugin.
  */
+
+// THESE ARE TEMPORARY FOR TESTING
 new const PLUGINS[][] = {
-    "gcljs.amxx",
-    "mhud_menu.amxx",
     "mhud_speed.amxx",
-    "kz_noclip_menu.amxx"
+    "mhud_menu.amxx",
+    "input_overlay.amxx"
 };
