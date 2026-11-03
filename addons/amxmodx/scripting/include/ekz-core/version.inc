@@ -5,4 +5,4 @@
  * more about that here: https://semver.org/.
  */
 
-#define EKZ_VERSION "0.1.0-dev"
+#define EKZ_VERSION "0.2.0-alpha"

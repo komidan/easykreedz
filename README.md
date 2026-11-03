@@ -1,27 +1,25 @@
 ![EasyKreedz Logo](res/placeholder_800x200.png)
 (need a logo)
 
---------------------------------------------------------------------------------
+---
 
 > ### WARNING
-> As of currently, this project is under __heavy development__. We will _not_
+>
+> As of currently, this project is under **heavy development**. We will _not_
 > suggest using it until it has both been approved for demo recording and
-> releases a __v1.0.0__.
+> releases a **v1.0.0**.
 
-EasyKreedz is a suite of [AMXModX](https://www.amxmodx.org/) plugins designed
-to be modular and accessible to all users. It aims to be functional on both
-the server and LAN side. There are addons depending on what _you_ want out of
-your experience. You want to LJ? Add `ekz-jumpstats.amxx` to `plugins.ini` and
-start jumping.
+EasyKreedz is a suite of [AMXModX](https://www.amxmodx.org/) plugins designed to be modular and accessible to all users. It aims to be functional on both the server and LAN side. There are addons depending on what _you_ want out of your experience. You want to LJ? Add `ekz-jumpstats.amxx` to `plugins.ini` and start jumping.
 
 # Table of Contents
 
-  - [Installation](#installation)
-  - [Building](#building)
-  - [Usage](#usage)
-  - [FAQ](#faq)
-  - [Plugins](#plugins)
-  - [Credits](#credits)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Building](#building)
+- [FAQ](#faq)
+- [Translation](#translation)
+- [Credits](#credits)
 
 ## Requirements
 
@@ -31,11 +29,11 @@ TO-BE-ADDED
 
 TO-BE-ADDED
 
-## Building
+## Usage
 
 TO-BE-ADDED
 
-## Usage
+## Building
 
 TO-BE-ADDED
 
@@ -43,10 +41,11 @@ TO-BE-ADDED
 
 TO-BE-ADDED
 
-## Plugins
+## Translation
 
-TO-BE-ADDED
+At the moment, this is only a planned feature. The repository does not contain any code for translation or translation files.
 
 ## Credits
 
-TO-BE-ADDED
+- **[CromChat](https://github.com/OciXCrom/CromChat) by OciXCrom** _Used to give users fancy messages in chat._
+  - [messages.inc](addons/amxmodx/scripting/include/ekz-api/messages.inc)

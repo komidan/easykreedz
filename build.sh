@@ -37,17 +37,6 @@ RELEASE_NAME="easykreedz"
 FOLDERS_TO_ZIP=(
     "addons"
     "cfg"
-    "maps"
-    "models"
-    "sound"
-    "sprites"
-    "materials"
-    "gfx"
-    "resource"
-    "overviews"
-    "media"
-    "events"
-    "scripts"
 )
 
 # All folders to search for `.inc` files.
@@ -68,6 +57,7 @@ SYMBOLS=(
 # Extra flags to pass to compiler.
 EXTRA_FLAGS=(
     "-;+" # Require Semi-Colons
+    "-E"
 )
 
 # Debug level passed into amxx compiler. (amxxpc -h)
@@ -77,11 +67,14 @@ EXTRA_FLAGS=(
 #   3  full debug information, dynamic checking, no optimization
 DEBUG=""
 
-# Verbosity level of compiler (amxxpc -h)
-#   0   quiet
-#   1   normal [default]
-#   2   verbose
-VERBOSE=""
+# Verbosity of this script and the compiler output it shows (also passed to
+# amxxpc as -v, though amxxpc 1.10 prints the same at every level, so the
+# filtering below is done by this script).
+#   0   quiet:   nothing on success; on failure only the compiler's errors
+#   1   normal:  [GOOD]/[INFO] lines, plus compiler warnings and errors [default]
+#   2   verbose: everything above, the full compiler output, and the script's
+#               settings and commands
+VERBOSE="1"
 
 # ---------------------------------------------------------------------------- #
 # Usage Function
@@ -109,7 +102,8 @@ Options:
     -d, --debug <0-3>       Compile the plugins using debug levels
     -i, --include           Add extra include directories (repeatable)
     -D, --define <X[=Y]>    Define a symbol during compilation (repeatable)
-    -v, --verbose <0-2>     Shows full compiler and script outputs
+    -v, --verbose <0-2>     Output level: 0 quiet (errors only), 1 normal
+                            (default), 2 verbose (full compiler + script output)
 
 Environment:
     CSTRIKE_PATH            Local cstrike folder, used for relative paths
@@ -123,17 +117,40 @@ EOF
 # ---------------------------------------------------------------------------- #
 # Logging
 # ---------------------------------------------------------------------------- #
+# Levels: 0 = failures only, 1 = normal, 2 = verbose (see VERBOSE above).
 info() {
-    printf '[INFO] %s\n' "$*"
+    [[ $VERBOSE -ge 1 ]] && printf '[INFO] %s\n' "$*"
+    return 0
 }
 good() {
-    printf '[GOOD] %s\n' "$*"
+    [[ $VERBOSE -ge 1 ]] && printf '[GOOD] %s\n' "$*"
+    return 0
 }
 warn() {
-    printf '[WARN] %s\n' "$*" >&2
+    [[ $VERBOSE -ge 1 ]] && printf '[WARN] %s\n' "$*" >&2
+    return 0
+}
+dbg() {
+    [[ $VERBOSE -ge 2 ]] && printf '[DBUG] %s\n' "$*"
+    return 0
 }
 fail() {
     printf '[FAIL] %s\n' "$*" >&2
+}
+
+# show_compiler <output> <ok|failed>
+# Prints the compiler's output according to the verbosity level.
+show_compiler() {
+    local output="$1" result="$2"
+    if [[ $VERBOSE -ge 2 ]]; then
+        echo "$output" >&2
+    elif [[ $VERBOSE -eq 1 ]]; then
+        grep -E '(warning|error|fatal error) [0-9]+' <<<"$output" >&2 || true
+    elif [[ "$result" == "failed" ]]; then
+        # Quiet: errors only, and only for plugins that failed.
+        grep -E '(error|fatal error) [0-9]+' <<<"$output" >&2 || true
+    fi
+    return 0
 }
 die() {
     fail "$*"; exit 1
@@ -170,7 +187,9 @@ while [[ $# -gt 0 ]]; do
                               # read as another source file (NAME.p).
                               [[ "$2" == *=* ]] && SYMBOLS+=("$2") || SYMBOLS+=("$2=1")
                               shift ;;
-        -v|--verbose)         need "$1" "${2:-}"; VERBOSE="$2"; shift ;;
+        -v|--verbose)         need "$1" "${2:-}"
+                              [[ "$2" =~ ^[0-2]$ ]] || die "--verbose must be 0, 1 or 2"
+                              VERBOSE="$2"; shift ;;
         -*)                   die "Unknown option: $1 (see --help)" ;;
         *)                    SOURCES+=("$1") ;;
     esac
@@ -239,8 +258,13 @@ for dir in "${INCLUDE_DIRS[@]}"; do
     FLAGS+=("-i$dir")
 done
 
-[[ -n "$DEBUG" ]]   && FLAGS+=("-d$DEBUG")
-[[ -n "$VERBOSE" ]] && FLAGS+=("-v$VERBOSE")
+[[ -n "$DEBUG" ]] && FLAGS+=("-d$DEBUG")
+FLAGS+=("-v$VERBOSE")
+
+dbg "CSTRIKE_PATH = $CSTRIKE_PATH"
+dbg "INSTALL_DIR  = $INSTALL_DIR"
+dbg "compiler     = $COMPILER"
+dbg "flags        = ${FLAGS[*]}"
 
 if [[ ${#SOURCES[@]} -eq 0 ]]; then
     while IFS= read -r file; do
@@ -273,14 +297,28 @@ for src in ${SOURCES[@]+"${SOURCES[@]}"}; do
     src="$(realpath --relative-to="$SCRIPTING_DIR" "$src")"
     out="$PLUGINS_DIR/$(basename "$src" .sma).amxx"
     rm -f "$out"
+    dbg "compiling $src -> $out"
 
-    if output="$(cd "$SCRIPTING_DIR" &&
-        "$COMPILER" "$src" "-o$out" "${FLAGS[@]}" 2>&1)"; then
+    # amxxpc can't be trusted to signal failure: on a "fatal error" (missing
+    # include, unreadable file, ...) it exits 0 AND still writes a broken
+    # .amxx that the game then refuses to load. So also look for error lines
+    # in its output, e.g. "file.sma(12) : error 017:" / "... : fatal error 100:".
+    compiled=1
+    output="$(cd "$SCRIPTING_DIR" &&
+        "$COMPILER" "$src" "-o$out" "${FLAGS[@]}" 2>&1)" || compiled=0
+    [[ -f "$out" ]] || compiled=0
+    grep -qE '\) : (fatal )?error [0-9]+:' <<<"$output" && compiled=0
+
+    if [[ $compiled -eq 1 ]]; then
         good "$(basename "$out")"
         BUILT+=("$out")
+
+        # Warnings don't fail the build, but don't hide them either.
+        show_compiler "$output" ok
     else
+        rm -f "$out"   # never leave a broken plugin behind
         fail "$(basename "$src")"
-        echo "$output" >&2
+        show_compiler "$output" failed
         FAILED=$((FAILED + 1))
     fi
 done
