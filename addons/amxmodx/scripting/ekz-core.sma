@@ -6,6 +6,8 @@
 #include <amxmodx>
 #include <amxmisc>
 
+#include <ekz-api/config>
+
 #include <ekz-core/globals>
 #include <ekz-core/version>
 
@@ -14,8 +16,6 @@
 #define PLUGIN_NAME     "EKZ-Core"
 #define PLUGIN_AUTHOR   "komidan"
 
-#define ACCESS_FLAG ADMIN_CFG;
-
 public plugin_cfg()
 {
     return PLUGIN_HANDLED;
@@ -23,7 +23,7 @@ public plugin_cfg()
 
 public plugin_init()
 {
-    register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR, EKZ_GITHUB);
+    register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
     if (is_dedicated_server()) {
         log_amx("Running on a Dedicated Server");
@@ -32,14 +32,10 @@ public plugin_init()
         log_amx("Running on a LAN Server");
     }
 
-    // Verify configuration directory exists for other plugins.
-    new cfg_dir[128];
-    new ekz_cfg_dir[128];
-    get_configsdir(cfg_dir, charsmax(cfg_dir));
-    formatex(ekz_cfg_dir, charsmax(ekz_cfg_dir), "%s/%s", cfg_dir, EKZ_CFG_DIR);
-
-    if (!dir_exists(ekz_cfg_dir)) {
-        log_amx("Created directory %s", ekz_cfg_dir);
-        mkdir(ekz_cfg_dir);
+    if (!ekz_config_dir_exists()) {
+        new cfg_dir[128];
+        ekz_get_config_dir(cfg_dir, charsmax(cfg_dir));
+        mkdir(cfg_dir);
+        log_amx("Configuration directory created");
     }
 }

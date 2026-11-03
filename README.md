@@ -48,4 +48,4 @@ At the moment, this is only a planned feature. The repository does not contain a
 ## Credits
 
 - **[CromChat](https://github.com/OciXCrom/CromChat) by OciXCrom** _Used to give users fancy messages in chat._
-  - [messages.inc](addons/amxmodx/scripting/include/ekz-core/messages.inc)
+  - [messages.inc](addons/amxmodx/scripting/include/ekz-api/messages.inc)
