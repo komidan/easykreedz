@@ -24,6 +24,12 @@
 #include <thirdparty/cromchat>
 #include <ekz-core/globals>
 
+/**
+ * Currently, only does CC_SetPrefix(), might do more later. Put this inside
+ * your `plugin_init()` function to setup messages.
+ *
+ * @noreturn
+ */
 stock ekz_chat_init()
 {
     CC_SetPrefix(EKZ_CHAT_TAG);
