@@ -1,7 +1,8 @@
 /**
  * ekz-plugins-manager
  *
- * List of plugins that can be managed by the plugin.
+ * List of plugins that can be managed by the plugin. Only included in
+ * one file, no need for header guard.
  */
 
 // THESE ARE TEMPORARY FOR TESTING

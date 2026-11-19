@@ -5,9 +5,10 @@
  *
  * Requires "H" (ADMIN_CFG) flag to operate.
  */
-#include <amxmodx>
-#include <amxmisc>
+
 #include <amxconst>
+#include <amxmisc>
+#include <amxmodx>
 
 #include <ekz-api/menu>
 #include <ekz-api/messages>
@@ -112,6 +113,9 @@ public menu_handler_plman(id, menu, item)
     }
 
     for (new i = 0; i < sizeof(PLUGINS); i++) {
+        // For reference on the pausing flags:
+        // https://www.amxmodx.org/api/amxmodx/pause
+        // https://www.amxmodx.org/api/amxmodx/unpause
         switch (g_iPluginStates[i]) {
             case STATE_ENABLED: {
                 unpause("ac", PLUGINS[i]);
