@@ -5,17 +5,20 @@
 
 > ### WARNING
 >
-> As of currently, this project is under **heavy development**. We will _not_
-> suggest using it until it has both been approved for demo recording and
+> As of currently, this project is under **heavy development**. It is _not_
+> suggested to use it until it has both been approved for demo recording and
 > releases a **v1.0.0**.
 
-EasyKreedz is a suite of [AMXModX](https://www.amxmodx.org/) plugins designed to be modular and accessible to all users. It aims to be functional on both the server and LAN side. There are addons depending on what _you_ want out of your experience. You want to LJ? Add `ekz-jumpstats.amxx` to `plugins.ini` and start jumping.
+EasyKreedz is a suite of [AMXModX](https://www.amxmodx.org/) plugins designed
+to be modular and accessible to all users. It aims to be functional on both the
+server and LAN side. Many of the plugins can optionally be included or not,
+saving performance on occaisions as well as removing unwanted bloat from your
+experience.
 
 # Table of Contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Usage](#usage)
 - [Building](#building)
 - [FAQ](#faq)
 - [Translation](#translation)
@@ -23,19 +26,26 @@ EasyKreedz is a suite of [AMXModX](https://www.amxmodx.org/) plugins designed to
 
 ## Requirements
 
-TO-BE-ADDED
+To use this you need at least:
+
+> DISCLAIMER:
+>
+> AMX Mod X version is suggested, there is no testing for being backwards-
+> compatible.
+
+- [Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/) (duh)
+- [AMX Mod X](https://www.amxmodx.org/downloads.php) 1.10+
 
 ## Installation
 
 TO-BE-ADDED
 
-## Usage
-
-TO-BE-ADDED
-
 ## Building
 
-TO-BE-ADDED
+To begin, you can read the `build.sh` file or run `--help` on it to see
+some basic usage information. The only requirement is to link it to your
+`Half-Life/cstrike/addons/scripting/include` folder to use AMX Mod X's
+built-ins.
 
 ## FAQ
 

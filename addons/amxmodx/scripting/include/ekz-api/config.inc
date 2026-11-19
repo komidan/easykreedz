@@ -4,8 +4,9 @@
  * An API designed to simplify config parsing and directory management
  * within EasyKreedz.
  */
+
 #if defined __EKZ_CONFIG_INCLUDED__
-  #endinput
+    #endinput
 #endif
 #define __EKZ_CONFIG_INCLUDED__
 

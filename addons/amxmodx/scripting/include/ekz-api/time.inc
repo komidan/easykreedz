@@ -3,6 +3,7 @@
  *
  * Time helpers
  */
+
 #if define __EKZ_TIME__
     #endinput
 #endif
