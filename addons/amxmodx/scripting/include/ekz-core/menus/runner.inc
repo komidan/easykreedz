@@ -4,32 +4,34 @@
  * Checkpoint Menu
  */
 
-#if defined __EKZ_MENU_CHECKPOINTS_INCLUDED__
+#if defined __EKZ_MENU_RUNNER_INCLUDED__
     #endinput
 #endif
-#define __EKZ_MENU_CHECKPOINTS_INCLUDED__
+#define __EKZ_MENU_RUNNER_INCLUDED__
 
 #include <ekz-api/menu>
 #include <ekz-api/messages>
 
-#include <ekz-core/checkpoints>
+#include <ekz-core/runner>
+#include <ekz-core/timer>
 
-public cmd_MenuShowCheckpoints(id)
+public cmd_MenuShowRunner(id)
 {
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
-        "%s%s", EKZ_MENU_TAG, "Checkpoints"
+        "%sRunner", EKZ_MENU_TAG
     );
-    new menu = menu_create(menu_name, "MenuHandler_Checkpoints");
+    new menu = menu_create(menu_name, "MenuHandler_Runner");
 
-    menu_additem(menu, "SavePos");
-    menu_additem(menu, "GotoPos");
+    menu_additem(menu, "Checkpoint");
+    menu_additem(menu, "GoCheck");
 
     menu_addblank(menu);
 
     new stats[32];
     formatex(stats, charsmax(stats), "\r%d \dCP \r%d \dGC",
-        g_PlayerStats[id][_CHECKPOINTS], g_PlayerStats[id][_GOCHECKS]
+        g_PlayerStats[id][PlayerStats_CHECKPOINTS],
+        g_PlayerStats[id][PlayerStats_GOCHECKS]
     );
     menu_addtext(menu, stats);
 
@@ -38,7 +40,7 @@ public cmd_MenuShowCheckpoints(id)
     return PLUGIN_HANDLED;
 }
 
-public MenuHandler_Checkpoints(id, menu, item)
+public MenuHandler_Runner(id, menu, item)
 {
     if (item == MENU_EXIT) {
         menu_destroy(menu);
@@ -52,7 +54,7 @@ public MenuHandler_Checkpoints(id, menu, item)
             GotoPosition(id);
     }
 
-    cmd_MenuShowCheckpoints(id);
+    cmd_MenuShowRunner(id);
 
     return PLUGIN_HANDLED;
 }
