@@ -23,17 +23,18 @@ public cmd_MenuShowRunner(id)
     );
     new menu = menu_create(menu_name, "MenuHandler_Runner");
 
-    menu_additem(menu, "Checkpoint");
-    menu_additem(menu, "GoCheck");
+    new checkpoint_text[32];
+    formatex(checkpoint_text, charsmax(checkpoint_text), "Checkpoint #%d",
+        g_PlayerStats[id][PlayerStats_CHECKPOINTS]
+    );
 
-    menu_addblank(menu);
-
-    new stats[32];
-    formatex(stats, charsmax(stats), "\r%d \dCP \r%d \dGC",
-        g_PlayerStats[id][PlayerStats_CHECKPOINTS],
+    new gocheck_text[32];
+    formatex(gocheck_text, charsmax(gocheck_text), "GoCheck #%d",
         g_PlayerStats[id][PlayerStats_GOCHECKS]
     );
-    menu_addtext(menu, stats);
+
+    menu_additem(menu, checkpoint_text);
+    menu_additem(menu, gocheck_text);
 
     menu_display(id, menu);
 

@@ -57,7 +57,7 @@ stock GotoPosition(id)
     }
 
     if (g_PlayerStats[id][PlayerStats_CHECKPOINTS] == 0) {
-        ekz_send_warming(id, "You don't have any checkpoints!");
+        ekz_send_warning(id, "You don't have any checkpoints!");
         return PLUGIN_HANDLED;
     }
 
