@@ -10,7 +10,6 @@
 #include <amxmisc>
 #include <amxmodx>
 
-#include <ekz-api/menu>
 #include <ekz-api/messages>
 
 #include <ekz-core/globals>

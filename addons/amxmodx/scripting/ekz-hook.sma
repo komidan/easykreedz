@@ -29,6 +29,7 @@ new Float:g_vecHookPoint[MAXPLAYERS][3];
 
 new g_iHookSprite;
 new g_cvHookSpeed;
+new g_cvHookVisible;
 
 new g_Cvars[][CvarData] = {
     { "ekz_hookspeed","512.0",FCVAR_NONE,"Hook Speed",true,1.0,true,2048.0 },
@@ -154,7 +155,7 @@ DrawHook(id, Float:start[3], Float:end[3])
     if (get_pcvar_num(g_cvHookVisible)) {
         message_begin(MSG_BROADCAST, SVC_TEMPENTITY);
     } else {
-        message_begin(MSG_ONE_UNRELIABLE, SVC_TEMPENTITIY, _, id);
+        message_begin(MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, _, id);
     }
 
     write_byte(TE_BEAMPOINTS);

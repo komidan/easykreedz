@@ -9,9 +9,9 @@
 #endif
 #define __EKZ_MENU_RUNNER_INCLUDED__
 
-#include <ekz-api/menu>
 #include <ekz-api/messages>
 
+#include <ekz-core/globals>
 #include <ekz-core/runner>
 #include <ekz-core/timer>
 
