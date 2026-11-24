@@ -10,3 +10,4 @@
 #define __EKZ_GLOBALS_INCLUDED__
 
 #define MAXPLAYERS 33
+#define EKZ_MENU_TAG "\d[\rEKZ\d] \y"
