@@ -12,7 +12,7 @@
 #include <ekz-api/menu>
 #include <ekz-api/messages>
 
-#include <ekz-core/menus/checkpoints>
+#include <ekz-core/menus/runner>
 #include <ekz-core/menus/settings>
 
 public cmd_MenuShowMain(id)
@@ -23,7 +23,7 @@ public cmd_MenuShowMain(id)
     );
     new menu = menu_create(menu_name, "MenuHandler_Main");
 
-    menu_additem(menu, "Checkpoints");
+    menu_additem(menu, "Runner");
     menu_additem(menu, "Settings");
 #if !defined SERVER_BUILD
     menu_additem(menu, "Plugin Manager");
@@ -41,8 +41,8 @@ public MenuHandler_Main(id, menu, item)
     }
 
     switch (item) {
-        case 0: // Checkpoints
-            cmd_MenuShowCheckpoints(id);
+        case 0: // Runner Menu
+            cmd_MenuShowRunner(id);
         case 1: // Settings
             cmd_MenuShowSettings(id);
 #if !defined SERVER_BUILD

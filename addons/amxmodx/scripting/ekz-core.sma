@@ -8,11 +8,11 @@
 #include <amxmodx>
 
 #include <ekz-api/config>
+#include <ekz-api/messages.inc>
 
 #include <ekz-core/globals>
 #include <ekz-core/version>
-
-#include <ekz-core/menus/checkpoints>
+#include <ekz-core/menus/runner>
 #include <ekz-core/menus/main>
 #include <ekz-core/menus/settings>
 
@@ -21,21 +21,17 @@
 #define PLUGIN_NAME     "EKZ-Core"
 #define PLUGIN_AUTHOR   "komidan"
 
-public plugin_cfg()
-{
-    return PLUGIN_HANDLED;
-}
-
 public plugin_init()
 {
     register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
-    // Initialize CromChat default prefix.
-    ekz_chat_init();
+    register_clcmd("say /ekz", "cmd_MenuShowMain");
 
     register_clcmd("chooseteam", "cmd_MenuShowMain");
-    register_clcmd("buyammo1", "cmd_MenuShowCheckpoints");
+    register_clcmd("buyammo1", "cmd_MenuShowRunner");
     register_clcmd("buyammo2", "cmd_MenuShowSettings");
+
+    ekz_chat_init(); // Sets the prefix for CromChat.
 
 #if defined DEBUG
     if (is_dedicated_server()) {
@@ -46,6 +42,7 @@ public plugin_init()
     }
 #endif
 
+    // Make sure the configuration directory exists, creates it if not.
     if (!ekz_config_dir_exists()) {
         new cfg_dir[128];
         ekz_get_config_dir(cfg_dir, charsmax(cfg_dir));
@@ -53,3 +50,5 @@ public plugin_init()
         log_amx("Configuration directory created");
     }
 }
+
+// do #if defined SERVER for client_connextex/disconnected/remove?
