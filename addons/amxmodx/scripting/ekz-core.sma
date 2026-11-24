@@ -12,9 +12,11 @@
 #include <ekz-api/messages.inc>
 
 #include <ekz-core/globals>
-#include <ekz-core/timer>
-#include <ekz-core/version>
 #include <ekz-core/respawn>
+#include <ekz-core/timer>
+#include <ekz-core/utilities>
+#include <ekz-core/version>
+
 #include <ekz-core/menus/main>
 #include <ekz-core/menus/runner>
 #include <ekz-core/menus/settings>
@@ -42,6 +44,8 @@ public plugin_init()
     register_clcmd("chooseteam", "cmd_MenuShowMain");
     register_clcmd("buyammo1", "cmd_MenuShowRunner");
     register_clcmd("buyammo2", "cmd_MenuShowSettings");
+
+    register_clcmd("say /god", "cmd_God");
 
     ekz_chat_init(); // Sets the prefix for CromChat.
 
