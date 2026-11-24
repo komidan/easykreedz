@@ -28,13 +28,9 @@ experience.
 
 To use this you need at least:
 
-> DISCLAIMER:
->
-> AMX Mod X version is suggested, there is no testing for being backwards-
-> compatible.
-
 - [Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/) (duh)
-- [AMX Mod X](https://www.amxmodx.org/downloads.php) 1.10+
+- [AMX Mod X](https://www.amxmodx.org/downloads.php) 1.10+ (recommended,
+  backwards compatibility is not tested)
 
 ## Installation
 
