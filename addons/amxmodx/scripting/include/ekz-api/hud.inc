@@ -9,6 +9,12 @@
 #endif
 #define __EKZ_HUD_INCLUDED__
 
+enum _:HUD_Channels {
+  HUD_ANY     = -1,
+  HUD_REGULAR =  1,
+  HUD_WARNING =  4
+};
+
 /**
  * Sends a warning HUD message to a player.
  *
@@ -26,10 +32,10 @@ stock ekz_hud_warning(id, const message[], any:...)
         -1.0, 0.25,   // Position (center, upper portion)
         0,            // Effect
         0.0,          // Effect duration
-        3.0,          // Hold duration
+        2.5,          // Hold duration
         0.1,          // Fade-in
-        0.2,          // Fade-out
-        -1            // HUD channel (automatic)
+        0.1,          // Fade-out
+        HUD_WARNING   // HUD channel
     );
 
     show_hudmessage(id, "%s", buffer);
@@ -52,10 +58,10 @@ stock ekz_hud_message(id, const message[], any:...)
         -1.0, 0.25,   // Position (center, upper portion)
         0,            // Effect
         0.0,          // Effect duration
-        3.0,          // Hold duration
+        2.5,          // Hold duration
         0.1,          // Fade-in
-        0.2,          // Fade-out
-        -1            // HUD channel (automatic)
+        0.1,          // Fade-out
+        HUD_ANY       // HUD channel (automatic)
     );
 
     show_hudmessage(id, "%s", buffer);
