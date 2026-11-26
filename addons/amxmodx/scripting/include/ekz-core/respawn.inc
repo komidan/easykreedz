@@ -9,6 +9,8 @@
 #endif
 #define __EKZ_RESPAWN_INCLUDED__
 
+#include <fun>
+
 #include <hamsandwich>
 #include <ekz-api/hud>
 
@@ -20,10 +22,15 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
         return HAM_IGNORED;
     }
 
+    if (get_user_godmode(victim))
+    {
+        return HAM_IGNORED;
+    }
+
     new Float:health;
     pev(victim, pev_health, health);
 
-    if (damage >= health) {
+    if (damage >= health ) {
         set_task(0.1, "TaskSendDeathMessage", victim);
         ExecuteHamB(Ham_Spawn, victim);
 
