@@ -147,9 +147,12 @@ StopTimer(id)
 #endif
 
     new time[32];
+    new mapname[64];
+    get_mapname(mapname, charsmax(mapname));
+
     ekz_format_gametime(GetTime(id), time, charsmax(time));
     ekz_send_chat(id, "Finished ^4%s ^1in ^5%s^1",
-        g_szMapName, time
+        mapname, time
     );
 
     return;

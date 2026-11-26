@@ -68,8 +68,6 @@ public plugin_init()
         mkdir(cfg_dir);
         log_amx("Configuration directory created");
     }
-
-    get_mapname(g_szMapName, charsmax(g_szMapName));
 }
 
 public client_putinserver(id)
