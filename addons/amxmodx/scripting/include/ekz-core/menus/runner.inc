@@ -25,12 +25,12 @@ public cmd_MenuShowRunner(id)
 
     new checkpoint_text[32];
     formatex(checkpoint_text, charsmax(checkpoint_text), "Checkpoint #%d",
-        g_PlayerStats[id][PlayerStats_CHECKPOINTS]
+        g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS]
     );
 
     new gocheck_text[32];
     formatex(gocheck_text, charsmax(gocheck_text), "GoCheck #%d",
-        g_PlayerStats[id][PlayerStats_GOCHECKS]
+        g_PlayerStats[id][Runner_PlayerStats_GOCHECKS]
     );
 
     menu_additem(menu, checkpoint_text);
