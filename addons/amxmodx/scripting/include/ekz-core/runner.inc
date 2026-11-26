@@ -20,13 +20,13 @@ enum _:EKZ_Runner_PlayerData
 {
     Float:Runner_PlayerData_ORIGIN[3],
     Float:Runner_PlayerData_ANGLES[3],
-}
+};
 
 enum _:EKZ_Runner_PlayerStats
 {
     Runner_PlayerStats_CHECKPOINTS,
     Runner_PlayerStats_GOCHECKS
-}
+};
 
 new Float:g_PlayerData[MAXPLAYERS][EKZ_Runner_PlayerData];
 new g_PlayerStats[MAXPLAYERS][EKZ_Runner_PlayerStats];
@@ -83,7 +83,16 @@ public Runner_ResetPlayerStats(id)
     g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS] = 0;
     g_PlayerStats[id][Runner_PlayerStats_GOCHECKS] = 0;
 
-    // refresh menu
+    g_PlayerData[id][Runner_PlayerData_ORIGIN][0] = 0.0;
+    g_PlayerData[id][Runner_PlayerData_ORIGIN][1] = 0.0;
+    g_PlayerData[id][Runner_PlayerData_ORIGIN][2] = 0.0;
+
+    g_PlayerData[id][Runner_PlayerData_ANGLES][0] = 0.0;
+    g_PlayerData[id][Runner_PlayerData_ANGLES][1] = 0.0;
+    g_PlayerData[id][Runner_PlayerData_ANGLES][2] = 0.0;
+
+    // Refresh Menu, showing zero checkpoints/gochecks.
+    // Also serves to open the menu when starting a run.
     cmd_MenuShowRunner(id);
 
     return;
