@@ -12,7 +12,7 @@
 
 // You can define these yourself in a plugin to overwrite the default.
 #if !defined EKZ_CHAT_TAG
-    #define EKZ_CHAT_TAG "^7EKZ ^4> ^1"
+    #define EKZ_CHAT_TAG "^5[^4EKZ^5] ^1"
 #endif
 #if !defined EKZ_CONSOLE_TAG
     #define EKZ_CONSOLE_TAG "[EKZ] "

@@ -35,7 +35,9 @@ public plugin_init()
 {
     register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
-    register_clcmd("say /plman", "cmd_Menu", ADMIN_CFG, "Open the EKZ Plugin Manager");
+    register_clcmd("say /plman", "cmd_Menu", ADMIN_CFG,
+        "Open the EKZ Plugin Manager"
+    );
 
     ekz_chat_init();
 }
@@ -46,11 +48,11 @@ public cmd_Menu(id, level, cid)
         return PLUGIN_HANDLED;
     }
 
-    ShowPluginManagerMenu(id);
+    MenuShowPluginManager(id);
     return PLUGIN_HANDLED;
 }
 
-ShowPluginManagerMenu(id)
+MenuShowPluginManager(id)
 {
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
@@ -107,7 +109,7 @@ public menu_handler_plman(id, menu, item)
             g_iPluginStates[plugin] = STATE_ENABLED;
         }
 
-        ShowPluginManagerMenu(id);
+        MenuShowPluginManager(id);
         return PLUGIN_HANDLED;
     }
 
@@ -132,7 +134,7 @@ public menu_handler_plman(id, menu, item)
     }
 
     ekz_send_chat(id, "Ran plugin settings. Check console for details.");
-    ShowPluginManagerMenu(id);
+    MenuShowPluginManager(id);
 
     return PLUGIN_HANDLED;
 }
