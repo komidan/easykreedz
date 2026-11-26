@@ -10,3 +10,7 @@
 #define __EKZ_GLOBALS_INCLUDED__
 
 #define MAXPLAYERS 33
+#define EKZ_MENU_TAG "\d[\rEKZ\d] \y"
+
+// Gets set in EKZ-Core
+new g_szMapName[64];

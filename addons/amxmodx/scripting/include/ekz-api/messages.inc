@@ -45,7 +45,7 @@ stock ekz_chat_init()
  *
  * @noreturn
  */
-stock ekz_send_chat(id, const fmt[], ...)
+stock ekz_send_chat(id, const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
@@ -61,7 +61,7 @@ stock ekz_send_chat(id, const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_chat_all(const fmt[], ...)
+stock ekz_send_chat_all(const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 2);
@@ -83,7 +83,7 @@ stock ekz_send_chat_all(const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_console(id, const fmt[], ...)
+stock ekz_send_console(id, const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
@@ -99,7 +99,7 @@ stock ekz_send_console(id, const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_console_all(const fmt[], ...)
+stock ekz_send_console_all(const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 2);
@@ -112,28 +112,3 @@ stock ekz_send_console_all(const fmt[], ...)
     }
 }
 
-/**
- * Sends a warning HUD message to a player.
- *
- * @param id        Player index (0 = everyone).
- * @param message   Message to display.
- * @param ...       Optional formatting parameters.
- */
-stock ekz_send_warning(id, const message[], any:...)
-{
-    new buffer[192];
-    vformat(buffer, charsmax(buffer), message, 3);
-
-    set_hudmessage(
-        255, 64, 64,  // RGB color
-        -1.0, 0.25,   // Position (center, upper portion)
-        0,            // Effect
-        0.0,          // Effect duration
-        3.0,          // Hold duration
-        0.1,          // Fade-in
-        0.2,          // Fade-out
-        -1            // HUD channel (automatic)
-    );
-
-    show_hudmessage(id, "%s", buffer);
-}
