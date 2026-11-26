@@ -16,7 +16,7 @@
  * @param message   Message to display.
  * @param ...       Optional formatting parameters.
  */
-stock ekz_send_warning(id, const message[], any:...)
+stock ekz_hud_warning(id, const message[], any:...)
 {
     new buffer[192];
     vformat(buffer, charsmax(buffer), message, 3);
@@ -42,7 +42,7 @@ stock ekz_send_warning(id, const message[], any:...)
  * @param message   Message to display.
  * @param ...       Optional formatting parameters.
  */
-stock ekz_send_message(id, const message[], any:...)
+stock ekz_hud_message(id, const message[], any:...)
 {
     new buffer[192];
     vformat(buffer, charsmax(buffer), message, 3);

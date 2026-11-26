@@ -24,12 +24,13 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     pev(victim, pev_health, health);
 
     if (damage >= health) {
+        ekz_hud_warning(victim, "You died!");
+        ExecuteHamB(Ham_Spawn, victim);
         return HAM_SUPERCEDE;
     }
 
     remove_task(victim + TASK_PLAYER_RECOVER);
-    set_task(2.0, "TaskRecoverPlayer", victim + TASK_PLAYER_RECOVER);
-
+    set_task(1.0, "TaskRecoverPlayer", victim + TASK_PLAYER_RECOVER);
 
     return HAM_IGNORED;
 }
@@ -43,8 +44,6 @@ public TaskRecoverPlayer(taskid)
     }
 
     if (!is_user_alive(id)) {
-        ekz_send_message(id, "You died!");
-        ExecuteHamB(Ham_Spawn, id);
         return;
     }
 
