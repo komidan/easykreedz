@@ -45,7 +45,7 @@ stock ekz_chat_init()
  *
  * @noreturn
  */
-stock ekz_send_chat(id, const fmt[], ...)
+stock ekz_send_chat(id, const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
@@ -61,7 +61,7 @@ stock ekz_send_chat(id, const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_chat_all(const fmt[], ...)
+stock ekz_send_chat_all(const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 2);
@@ -83,7 +83,7 @@ stock ekz_send_chat_all(const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_console(id, const fmt[], ...)
+stock ekz_send_console(id, const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 3);
@@ -99,7 +99,7 @@ stock ekz_send_console(id, const fmt[], ...)
  *
  * @noreturn
  */
-stock ekz_send_console_all(const fmt[], ...)
+stock ekz_send_console_all(const fmt[], any:...)
 {
     new buffer[256];
     vformat(buffer, charsmax(buffer), fmt, 2);
