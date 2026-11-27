@@ -135,7 +135,7 @@ public cmd_CancelTimer(id)
 
     g_eTimerState[id] = TIMER_INACTIVE;
 
-    ekz_send_chat(id, "Timer stopped!");
+    ekz_send_chat(id, "Timer cancelled!");
     Runner_ResetPlayerStats(id);
 
     return PLUGIN_HANDLED;
@@ -156,20 +156,17 @@ stock FinishTimer(id)
     ekz_send_chat(id, "ELAPSED: %f", GetTime(id));
 #endif
 
-    new time[32];
-    new mapname[64];
+    new name[32], mapname[64], time[32];
+    get_user_name(id, name, charsmax(name));
     get_mapname(mapname, charsmax(mapname));
-
     ekz_format_gametime(GetTime(id), time, charsmax(time));
 
 #if defined SERVER
-    new name[32];
-    get_user_name(id, name, charsmax(name));
     ekz_send_chat_all("Player ^4%s ^1finished ^4%s ^1in ^5%s^1",
         name, mapname, time
     );
 #else
-    ekz_send_chat(id, "Player ^%s ^1finished ^4%s ^1in ^5%s^1",
+    ekz_send_chat(id, "Player ^4%s ^1finished ^4%s ^1in ^5%s^1",
         name, mapname, time
     );
 #endif
