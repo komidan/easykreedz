@@ -4,38 +4,47 @@
  * Plugin that lets people grapple around.
  */
 
-// TODO: Fix the sprite drawing 1000s of times per second. Use Tasks?
-// TODO: Color the sprite optionally using a menu or hookcolor(r,g,b) command.
 // TODO: Add a global g_bHookUsed[MAXPLAYERS] check for each run.
+// TODO: Refactor this code to separate .sma files (?)
+// TODO: Color is per-player but not hookspeed or visible state. Using CVARs
+//       here is not the right approach. Each player should have their own
+//       values and config options.
+//         - Specifically, HookSpeed and HookVisible should not be CVARs.
 
 #include <amxmodx>
+#include <cvars>
 #include <fakemeta>
+#include <hamsandwich>
 #include <xs>
-
-#pragma semicolon 1
 
 #include <ekz-api/cvar>
 #include <ekz-api/globals>
 #include <ekz-api/messages>
+#include <ekz-api/player>
 #include <ekz-api/version>
 
-#define PLUGIN_NAME "EKZ-Hook"
+#pragma semicolon 1
+
+#define PLUGIN_NAME   "EKZ-Hook"
 #define PLUGIN_AUTHOR "komidan"
 
-// This was arbitrarily picked. It could change, and I've tested with >10000,
-// no idea if it can cause issues.
-#define HOOK_MAX_DISTANCE 4096.0
+#define HOOK_MAX_DISTANCE  4096.0
+#define HOOK_BEAM_TASK     3000
+#define HOOK_BEAM_INTERVAL 2.0
 
 new bool:g_bIsHooked[MAXPLAYERS];
 new Float:g_vecHookPoint[MAXPLAYERS][3];
 
 new g_iHookSprite;
+new g_iHookColor[MAXPLAYERS][3];
 new g_cvHookSpeed;
-new g_cvHookVisible;
 
 new g_Cvars[][CvarData] = {
-    { "ekz_hookspeed","512.0",FCVAR_NONE,"Hook Speed",true,1.0,true,2048.0 },
-    { "ekz_hookvisible", "1",FCVAR_NONE,"Show other players' hook beams." }
+    {
+        "ekz_hookspeed", "512.0", FCVAR_NONE,
+        "Hook Speed",
+        true, 1.0, true, 2048.0
+    },
 };
 
 public plugin_precache()
@@ -49,32 +58,106 @@ public plugin_init()
 
     ekz_create_cvars(g_Cvars, sizeof(g_Cvars));
     g_cvHookSpeed = get_cvar_pointer("ekz_hookspeed");
-    g_cvHookVisible = get_cvar_pointer("ekz_hookvisible");
 
     register_forward(FM_PlayerPreThink, "OnPlayerPreThink");
+    RegisterHam(Ham_Spawn, "player", "OnPlayerSpawnPost", 1);
 
-    register_clcmd("/hookspeed", "cmd_HookSpeed");
+    register_clcmd("hookcolor", "cmd_HookColor");
     register_clcmd("+hook", "cmd_HookOn");
     register_clcmd("-hook", "cmd_HookOff");
+
+    // Set default hook color to WHITE
+    for (new id = 1; id <= MaxClients; id++) {
+        g_iHookColor[id][0] = 255;
+        g_iHookColor[id][1] = 255;
+        g_iHookColor[id][2] = 255;
+    }
 }
 
 public client_disconnected(id)
 {
-    g_bIsHooked[id] = false;
+    HookOff(id);
 }
 
-public cmd_HookSpeed(id)
+public OnPlayerSpawnPost(id)
 {
-    client_print(id, print_chat, "Set speed, argument is:");
+    HookOff(id);
+}
+
+// ========================================================================== //
+// Commands
+// ========================================================================== //
+public cmd_HookColor(id)
+{
+    if (read_argc() != 4) {
+        ekz_send_console(id, "Usage: hookcolor <r:0-255> <g:0-255> <b:0-255>");
+        return PLUGIN_HANDLED;
+    }
+
+    new arg[4];
+    new r, g, b;
+
+    read_argv(1, arg, charsmax(arg));
+    r = str_to_num(arg);
+
+    read_argv(2, arg, charsmax(arg));
+    g = str_to_num(arg);
+
+    read_argv(3, arg, charsmax(arg));
+    b = str_to_num(arg);
+
+    HookSetColor(id, r, g, b);
+
     return PLUGIN_HANDLED;
 }
 
 public cmd_HookOn(id)
 {
-    if (!is_user_alive(id) || g_bIsHooked[id])
-    {
+    if (!is_user_alive(id))
         return PLUGIN_HANDLED;
+
+    HookOn(id);
+
+    return PLUGIN_HANDLED;
+}
+
+public cmd_HookOff(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    HookOff(id);
+
+    return PLUGIN_HANDLED;
+}
+
+// ========================================================================== //
+// Functions
+// ========================================================================== //
+stock HookSetColor(id, r, g, b)
+{
+    if (!ekz_player_is_indexed(id) || !is_user_connected(id))
+        return;
+
+    if (r < 0 || r > 255 ||
+        g < 0 || g > 255 ||
+        b < 0 || b > 255)
+    {
+        ekz_send_console(id, "Values outside of range.");
+        return;
     }
+
+    g_iHookColor[id][0] = r;
+    g_iHookColor[id][1] = g;
+    g_iHookColor[id][2] = b;
+}
+
+stock HookOn(id)
+{
+    if (!is_user_alive(id))
+        return;
+    if (g_bIsHooked[id])
+        return;
 
     new Float:origin[3];
     new Float:view[3];
@@ -102,17 +185,24 @@ public cmd_HookOn(id)
     if (frac < 1.0 && frac > 0.0) {
         get_tr2(trace, TR_vecEndPos, g_vecHookPoint[id]);
         g_bIsHooked[id] = true;
+
+        DrawHookBeam(id);
+        set_task(HOOK_BEAM_INTERVAL, "TaskRefreshHookBeam",
+            id + HOOK_BEAM_TASK, _, _, "b"
+        );
     }
 
     free_tr2(trace);
-
-    return PLUGIN_HANDLED;
 }
 
-public cmd_HookOff(id)
+stock HookOff(id)
 {
+    if (!g_bIsHooked[id])
+        return;
+
     g_bIsHooked[id] = false;
-    return PLUGIN_HANDLED;
+    remove_task(id + HOOK_BEAM_TASK);
+    HookKillBeam(id);
 }
 
 public OnPlayerPreThink(id)
@@ -135,50 +225,53 @@ public OnPlayerPreThink(id)
 
     set_pev(id, pev_velocity, velocity);
 
-    // Draw Beam
-    new Float:start[3];
-    xs_vec_copy(origin, start);
-    start[2] += 16.0;
-    DrawHook(id, start, g_vecHookPoint[id]);
+    DrawHookBeam(id);
 
     return FMRES_IGNORED;
 }
 
-DrawHook(id, Float:start[3], Float:end[3])
+stock DrawHookBeam(id)
 {
-    if (get_pcvar_num(g_cvHookVisible)) {
-        message_begin(MSG_BROADCAST, SVC_TEMPENTITY);
-    } else {
-        message_begin(MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, _, id);
-    }
+    if (!ekz_player_is_indexed(id) || !is_user_connected(id))
+        return;
 
-    write_byte(TE_BEAMPOINTS);
+    message_begin(MSG_BROADCAST, SVC_TEMPENTITY);
 
-    // Start position
-    write_coord_f(start[0]);
-    write_coord_f(start[1]);
-    write_coord_f(start[2]);
-
-    // End position
-    write_coord_f(end[0]);
-    write_coord_f(end[1]);
-    write_coord_f(end[2]);
-
+    write_byte(TE_BEAMENTPOINT);
+    write_short(id);
+    write_coord_f(g_vecHookPoint[id][0]);
+    write_coord_f(g_vecHookPoint[id][1]);
+    write_coord_f(g_vecHookPoint[id][2]);
     write_short(g_iHookSprite);
-
-    write_byte(0);  // start frame
-    write_byte(1);  // frame rate
-    write_byte(1);  // life (0.1 seconds)
-    write_byte(10); // width
-    write_byte(0);  // noise
-
-    // RGB
-    write_byte(255);
-    write_byte(255);
-    write_byte(255);
-
+    write_byte(0);   // start frame
+    write_byte(1);   // frame rate
+    write_byte(11);  // life (1.1s, slightly longer than refresh interval)
+    write_byte(10);  // width
+    write_byte(0);   // noise
+    write_byte(g_iHookColor[id][0]);   // red
+    write_byte(g_iHookColor[id][1]);   // green
+    write_byte(g_iHookColor[id][2]);   // blue
     write_byte(200); // brightness
     write_byte(0);   // scroll speed
-
     message_end();
+}
+
+stock HookKillBeam(id)
+{
+    message_begin(MSG_ALL, SVC_TEMPENTITY);
+    write_byte(TE_KILLBEAM);
+    write_short(id);
+    message_end();
+}
+
+public TaskRefreshHookBeam(taskid)
+{
+    new id = taskid - HOOK_BEAM_TASK;
+
+    if (!is_user_alive(id)) {
+        HookOff(id);
+        return;
+    }
+
+    DrawHookBeam(id);
 }
