@@ -50,15 +50,11 @@ public plugin_init()
     PluginInit_Timer();
     PluginInit_Utilities();
 
-#if defined DEBUG
     if (is_dedicated_server()) {
         log_amx("Running on a Dedicated Server");
-        // server initialization here.
     } else {
-        // sv_lan 1 (?)
         log_amx("Running on a LAN Server");
     }
-#endif
 
     // Make sure the configuration directory exists, creates it if not.
     if (!ekz_config_dir_exists()) {

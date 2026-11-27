@@ -47,3 +47,20 @@ stock bool:ekz_player_is_indexed(id)
 {
     return 1 <= id <= MaxClients;
 }
+
+/**
+ * Returns true if the player has access to ADMIN_* flags.
+ *  https://amxmodx.org/api/amxconst
+ *
+ * @param id           Player ID
+ * @param flag         Bitflag(s)
+ *
+ * @return bool
+ */
+stock bool:ekz_player_has_access(id, flags)
+{
+    if (!is_dedicated_server() && id == 1)
+        return true;
+
+    return access(id, flags) != 0;
+}

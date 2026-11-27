@@ -38,10 +38,9 @@ stock MenuShowMain(id)
     menu_additem(menu, "Runner");
     menu_additem(menu, "Settings");
 
-    // TODO: This still will appear on a server if someone doesn't have proper
-    // access rights.
 #if !defined SERVER_BUILD
-    menu_additem(menu, "Plugin Manager");
+    if (ekz_player_has_access(id, ADMIN_CFG))
+        menu_additem(menu, "Plugin Manager");
 #endif
 
     menu_display(id, menu);
