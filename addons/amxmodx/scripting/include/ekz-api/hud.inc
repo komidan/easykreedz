@@ -12,7 +12,9 @@
 #include <amxmodx>
 #include <string>
 
-enum _:HUD_Channels {
+#pragma semicolon 1
+
+enum _:HudChannels {
     HUD_ANY     = -1,
     HUD_REGULAR =  1,
  // HUD_        =  2,
@@ -26,6 +28,8 @@ enum _:HUD_Channels {
  * @param id        Player index (0 = everyone).
  * @param message   Message to display.
  * @param ...       Optional formatting parameters.
+ *
+ * @noreturn
  */
 stock ekz_hud_warning(id, const message[], any:...)
 {
@@ -52,6 +56,8 @@ stock ekz_hud_warning(id, const message[], any:...)
  * @param id        Player index (0 = everyone).
  * @param message   Message to display.
  * @param ...       Optional formatting parameters.
+ *
+ * @noreturn
  */
 stock ekz_hud_message(id, const message[], any:...)
 {

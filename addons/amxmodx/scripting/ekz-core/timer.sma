@@ -6,6 +6,7 @@
 
 #include <amxmodx>
 #include <engine>
+#include <hamsandwich>
 
 #include <ekz-api/globals>
 #include <ekz-api/messages>
@@ -24,12 +25,12 @@ enum TimerType {
 };
 
 // A list of possible start timer classnames.
-new g_szStartTimerTargets[1][] = {
+new const g_szStartTimerTargets[][] = {
     "counter_start_button",
 };
 
 // A list of possible stop timer classnames.
-new g_szEndTimerTargets[1][] = {
+new const g_szEndTimerTargets[][] = {
     "counter_stop_button",
 };
 
@@ -39,71 +40,49 @@ new TimerState:g_eTimerState[MAXPLAYERS];
 
 // Holds the Entity IDs of the start & end timer funcs.
 new g_iStartTimerId;
-new g_iStopTimerId;
+new g_iEndTimerId;
 
-stock plugin_init_timer()
+stock PluginInit_Timer()
 {
-    init_entities();
-    register_clcmd("say /cancel", "cmd_CancelTimer");
+    register_clcmd("say /cancel", "cmd_TimerCancel");
+
     RegisterHam(Ham_Use, "func_button", "OnButtonUse", 0);
+
+    TimerInitEntities();
 }
 
-public client_putinserver_timer(id)
+public ClientPutInServer_Timer(id)
 {
     g_eTimerState[id] = TIMER_INACTIVE;
     Runner_ResetPlayerStats(id);
-
-    return;
 }
 
-stock init_entities()
+public ClientDisconnected_Timer(id)
 {
-    new n = entity_count();
-    new target[64];
-    new TimerType:eType;
+    g_eTimerState[id] = TIMER_INACTIVE;
+    Runner_ResetPlayerStats(id);
+}
 
-    for (new i = 0; i < n; i++) {
-        entity_get_string(i, EV_SZ_targetname, target, charsmax(target));
-        eType = get_timer_type(target);
+public cmd_TimerCancel(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
 
-        if (eType == TIMER_NONE) {
-            entity_get_string(i, EV_SZ_target, target, charsmax(target));
-            eType = get_timer_type(target);
-        }
-
-        switch (eType) {
-            case TIMER_START: g_iStartTimerId = i;
-            case TIMER_END: g_iStopTimerId = i;
-        }
-    }
+    TimerCancel(id);
 
     return PLUGIN_HANDLED;
 }
 
-public OnButtonUse(ent, caller, activator, use_type, Float:value)
-{
-    if (!is_user_alive(activator))
-        return HAM_IGNORED;
-
-    if (ent == g_iStartTimerId) {
-        StartTimer(activator);
-    } else if (ent == g_iStopTimerId) {
-        FinishTimer(activator);
-    }
-
-    return HAM_IGNORED;
-}
-
-stock TimerType:get_timer_type(const szTarget[])
+stock TimerType:GetTimerNameType(const name[])
 {
     for (new i = 0; i < sizeof(g_szStartTimerTargets); i++) {
-        if (equal(szTarget, g_szStartTimerTargets[i])) {
+        if (equal(name, g_szStartTimerTargets[i])) {
             return TIMER_START;
         }
     }
 
     for (new i = 0; i < sizeof(g_szEndTimerTargets); i++) {
-        if (equal(szTarget, g_szEndTimerTargets[i])) {
+        if (equal(name, g_szEndTimerTargets[i])) {
             return TIMER_END;
         }
     }
@@ -111,37 +90,72 @@ stock TimerType:get_timer_type(const szTarget[])
     return TIMER_NONE;
 }
 
+stock TimerType:GetTimerEntityType(ent)
+{
+    new name[64];
+    entity_get_string(ent, EV_SZ_targetname, name, charsmax(name));
+
+    new TimerType:type = GetTimerNameType(name);
+    if (type != TIMER_NONE)
+        return type;
+
+    entity_get_string(ent, EV_SZ_target, name, charsmax(name));
+    return GetTimerNameType(name);
+}
+
+stock TimerInitEntities()
+{
+    new ent = -1;
+
+    while ((ent = find_ent_by_class(ent, "func_button")) > 0) {
+        switch (GetTimerEntityType(ent)) {
+            case TIMER_START: g_iStartTimerId = ent;
+            case TIMER_END: g_iEndTimerId = ent;
+        }
+    }
+
+    if (!g_iStartTimerId)
+        log_amx("No start button found!");
+    if (!g_iEndTimerId)
+        log_amx("No end button found!");
+}
+
+// Ham_Use
+// https://amxmodx.org/api/ham_const
+public OnButtonUse(ent, caller, activator, use_type, Float:value)
+{
+    if (!is_user_alive(activator) && ekz_player_is_indexed(activator))
+        return HAM_IGNORED;
+
+    if (ent == g_iStartTimerId)
+        TimerStart(activator);
+    else if (ent == g_iEndTimerId)
+        TimerEnd(activator);
+
+    return HAM_IGNORED;
+}
+
 // register some way to see this
-stock StartTimer(id)
+stock TimerStart(id)
 {
     g_eTimerState[id] = TIMER_ACTIVE;
-
     g_fStartTime[id] = get_gametime();
-    Runner_ResetPlayerStats(id);
-
-#if defined DEBUG
-    ekz_send_chat(id, "START TIME: %f", g_fStartTime[id]);
-#endif
 
     ekz_send_chat(id, "Timer Started");
 
-    return;
+    Runner_ResetPlayerStats(id);
+    cmd_MenuShowRunner(id);
 }
 
-public cmd_CancelTimer(id)
+stock TimerCancel(id)
 {
-    if (!is_user_alive(id))
-        return PLUGIN_HANDLED;
-
     g_eTimerState[id] = TIMER_INACTIVE;
 
-    ekz_send_chat(id, "Timer stopped!");
+    ekz_send_chat(id, "Timer cancelled!");
     Runner_ResetPlayerStats(id);
-
-    return PLUGIN_HANDLED;
 }
 
-stock FinishTimer(id)
+stock TimerEnd(id)
 {
     if (g_eTimerState[id] == TIMER_INACTIVE) {
         ekz_send_chat(id, "Timer not started!");
@@ -149,26 +163,25 @@ stock FinishTimer(id)
     }
     g_eTimerState[id] = TIMER_INACTIVE;
 
-    Runner_ResetPlayerStats(id);
+    new name[32], mapname[64], time[32];
+    get_user_name(id, name, charsmax(name));
+    get_mapname(mapname, charsmax(mapname));
+    ekz_format_gametime(GetElapsed(id), time, charsmax(time));
 
-#if defined DEBUG
-    ekz_send_chat(id, "END TIME: %f", get_gametime());
-    ekz_send_chat(id, "ELAPSED: %f", GetTime(id));
+#if defined SERVER
+    ekz_send_chat_all("Player ^4%s ^1finished ^4%s ^1in ^5%s^1",
+        name, mapname, time
+    );
+#else
+    ekz_send_chat(id, "Player ^4%s ^1finished ^4%s ^1in ^5%s^1",
+        name, mapname, time
+    );
 #endif
 
-    new time[32];
-    new mapname[64];
-    get_mapname(mapname, charsmax(mapname));
-
-    ekz_format_gametime(GetTime(id), time, charsmax(time));
-    ekz_send_chat(id, "Finished ^4%s ^1in ^5%s^1",
-        mapname, time
-    );
-
-    return;
+    Runner_ResetPlayerStats(id);
 }
 
-stock Float:GetTime(id)
+stock Float:GetElapsed(id)
 {
     return get_gametime() - g_fStartTime[id];
 }

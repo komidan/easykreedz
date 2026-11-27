@@ -5,14 +5,55 @@
  * taking damage >= health.
  */
 
+#include <amxmodx>
+#include <fakemeta>
 #include <fun>
 #include <hamsandwich>
 
-#define TASK_PLAYER_RECOVER 2000
+#include <ekz-api/hud>
 
-stock plugin_init_respawn()
+#pragma semicolon 1
+
+// These are added to the player id to make sure there are no conflicts with
+// other tasks.
+#define TASK_PLAYER_RECOVER 2000
+#define TASK_DEATH_MESSAGE  2100
+
+stock PluginInit_Respawn()
 {
+    register_concmd("kill", "cmd_KillPlayer");
+    register_clcmd("say /kill", "cmd_KillPlayer");
+
     RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage");
+}
+
+stock ClientDisconnected_Respawn(id)
+{
+    remove_task(id + TASK_PLAYER_RECOVER);
+    remove_task(id + TASK_DEATH_MESSAGE);
+}
+
+public cmd_KillPlayer(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    PlayerKill(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock PlayerKill(id)
+{
+    if (!is_user_alive(id))
+        return;
+
+    remove_task(id + TASK_PLAYER_RECOVER);
+    remove_task(id + TASK_DEATH_MESSAGE);
+
+    set_task(0.1, "TaskSendDeathMessage", id + TASK_DEATH_MESSAGE);
+
+    ExecuteHamB(Ham_Spawn, id);
 }
 
 // Ham_TakeDamage
@@ -28,9 +69,7 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     pev(victim, pev_health, health);
 
     if (damage >= health ) {
-        set_task(0.1, "TaskSendDeathMessage", victim);
-        ExecuteHamB(Ham_Spawn, victim);
-
+        PlayerKill(victim);
         return HAM_SUPERCEDE;
     }
 
@@ -40,8 +79,10 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     return HAM_HANDLED;
 }
 
-public TaskSendDeathMessage(id)
+public TaskSendDeathMessage(taskid)
 {
+    new id = taskid - TASK_DEATH_MESSAGE;
+
     if (!is_user_connected(id))
         return PLUGIN_HANDLED;
 

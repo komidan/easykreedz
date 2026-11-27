@@ -9,4 +9,6 @@
 #endif
 #define __EKZ_API_GLOBALS_INCLUDED__
 
+#pragma semicolon 1
+
 #define MAXPLAYERS 33

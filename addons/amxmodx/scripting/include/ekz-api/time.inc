@@ -13,14 +13,17 @@
 #include <float>
 #include <string>
 
+#pragma semicolon 1
+
 /**
  * Gets the current date
  *
  * @param output[]     output buffer
  * @param len          len of buffer
+ *
  * @noreturn
  */
-stock ekz_get_current_date(const output[], len)
+stock ekz_get_current_date(output[], len)
 {
     get_time("%d-%b-%y", output, len);
 }
@@ -30,9 +33,10 @@ stock ekz_get_current_date(const output[], len)
  *
  * @param output[]     output buffer
  * @param len          len of buffer
+ *
  * @noreturn
  */
-stock ekz_get_current_time(const output[], len)
+stock ekz_get_current_time(output[], len)
 {
     get_time("%H:%M:%S", output, len);
 }
@@ -42,9 +46,10 @@ stock ekz_get_current_time(const output[], len)
  *
  * @param output[]     output buffer
  * @param len          len of buffer
+ *
  * @noreturn
  */
-stock ekz_get_current_datetime(const output[], len)
+stock ekz_get_current_datetime(output[], len)
 {
     get_time("%d-%b-%y %H:%M:%S", output, len);
 }
@@ -55,6 +60,7 @@ stock ekz_get_current_datetime(const output[], len)
  * @param time         time to be formatted
  * @param output[]     output buffer
  * @param len          len of buffer
+ *
  * @noreturn
  */
 stock ekz_format_gametime(Float:time, output[], len)

@@ -4,15 +4,34 @@
  * All Menus, Handlers
  */
 
-#include <ekz-api/menu>
+#include <amxmodx>
 
-stock plugin_init_menus()
+#include <ekz-api/menu>
+#include <ekz-api/messages>
+#include <ekz-api/misc>
+
+#pragma semicolon 1
+
+stock PluginInit_Menus()
 {
     register_clcmd("say /ekz", "cmd_MenuShowMain");
     register_clcmd("chooseteam", "cmd_MenuShowMain");
+    register_clcmd("buyammo1", "cmd_MenuShowRunner");
+    register_clcmd("buyammo2", "cmd_Nothing");
+    register_clcmd("say /settings", "cmd_MenuShowSettings");
 }
 
 public cmd_MenuShowMain(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowMain(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowMain(id)
 {
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
@@ -22,12 +41,11 @@ public cmd_MenuShowMain(id)
 
     menu_additem(menu, "Runner");
     menu_additem(menu, "Settings");
-#if !defined SERVER_BUILD
-    menu_additem(menu, "Plugin Manager");
-#endif
-    menu_display(id, menu);
 
-    return PLUGIN_HANDLED;
+    if (ekz_player_has_access(id, ADMIN_CFG))
+        menu_additem(menu, "Plugin Manager");
+
+    menu_display(id, menu);
 }
 
 public MenuHandler_Main(id, menu, item)
@@ -39,13 +57,11 @@ public MenuHandler_Main(id, menu, item)
 
     switch (item) {
         case 0: // Runner Menu
-            cmd_MenuShowRunner(id);
+            MenuShowRunner(id);
         case 1: // Settings
-            cmd_MenuShowSettings(id);
-#if !defined SERVER_BUILD
+            MenuShowSettings(id);
         case 2: // Plugin Manager
             client_cmd(id, "say /plman");
-#endif
         default:
             cmd_MenuShowMain(id);
     }
@@ -57,6 +73,16 @@ public MenuHandler_Main(id, menu, item)
 
 public cmd_MenuShowRunner(id)
 {
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowRunner(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowRunner(id)
+{
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
         "%sRunner", EKZ_MENU_TAG
@@ -65,20 +91,18 @@ public cmd_MenuShowRunner(id)
 
     new checkpoint_text[32];
     formatex(checkpoint_text, charsmax(checkpoint_text), "Checkpoint #%d",
-        g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS]
+        g_RunnerData[id][RUNNER_CHECKPOINTS]
     );
 
     new gocheck_text[32];
     formatex(gocheck_text, charsmax(gocheck_text), "GoCheck #%d",
-        g_PlayerStats[id][Runner_PlayerStats_GOCHECKS]
+        g_RunnerData[id][RUNNER_GOCHECKS]
     );
 
     menu_additem(menu, checkpoint_text);
     menu_additem(menu, gocheck_text);
 
     menu_display(id, menu);
-
-    return PLUGIN_HANDLED;
 }
 
 public MenuHandler_Runner(id, menu, item)
@@ -104,6 +128,16 @@ public MenuHandler_Runner(id, menu, item)
 
 public cmd_MenuShowSettings(id)
 {
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowSettings(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowSettings(id)
+{
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
         "%s%s", EKZ_MENU_TAG, "Settings"
@@ -113,8 +147,6 @@ public cmd_MenuShowSettings(id)
     menu_additem(menu, "Work in Progress.");
 
     menu_display(id, menu);
-
-    return PLUGIN_HANDLED;
 }
 
 public MenuHandler_Settings(id, menu, item)
@@ -126,7 +158,7 @@ public MenuHandler_Settings(id, menu, item)
 
     switch (item) {
         default:
-            ekz_send_chat(id, "settings!");
+            ekz_send_chat(id, "Settings is work in progress!");
     }
 
     menu_destroy(menu);

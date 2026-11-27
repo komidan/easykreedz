@@ -9,6 +9,11 @@
 #endif
 #define __EKZ_API_CONFIG_INCLUDED__
 
+#include <amxmisc>
+#include <amxmodx>
+
+#pragma semicolon 1
+
 #define EKZ_CFG_DIR "easykreedz"
 
 /**

@@ -7,4 +7,4 @@
  */
 
 // menus.sma
-forward cmd_MenuShowRunner(id);
+forward MenuShowMain(id);
