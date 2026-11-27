@@ -23,7 +23,8 @@
 enum PLUGIN_STATE {
     STATE_ENABLED = 0,
     STATE_PAUSED,
-    STATE_DISABLED,
+    STATE_UNLOADED,
+    STATE_DISABLED
 };
 
 new const PLUGINS[][] = {
@@ -36,6 +37,7 @@ new const PLUGINS[][] = {
 };
 
 new PLUGIN_STATE:g_iPluginStates[sizeof(PLUGINS)];
+new PLUGIN_STATE:g_iPluginSavedStates[sizeof(PLUGINS)];
 
 public plugin_init()
 {
@@ -70,24 +72,42 @@ MenuShowPluginManager(id)
     menu_additem(menu, "Save Options");
     menu_addblank(menu, 0);
 
-    new text[128];
-    new info[8];
+    new name[128], pstate[32], final[64], info[8];
 
     for (new i = 0; i < sizeof(PLUGINS); i++) {
         switch (g_iPluginStates[i]) {
             case STATE_ENABLED: {
-                formatex(text, charsmax(text), "\w%s", PLUGINS[i]);
+                formatex(name, charsmax(name), "\w%s\w", PLUGINS[i]);
             }
             case STATE_PAUSED: {
-                formatex(text, charsmax(text), "\y%s", PLUGINS[i]);
+                formatex(name, charsmax(name), "\y%s\w", PLUGINS[i]);
+            }
+            case STATE_UNLOADED: {
+                formatex(name, charsmax(name), "\r%s\w", PLUGINS[i]);
             }
             case STATE_DISABLED: {
-                formatex(text, charsmax(text), "\r%s", PLUGINS[i]);
+                formatex(name, charsmax(name), "\d%s\w", PLUGINS[i]);
             }
         }
 
+        switch (g_iPluginSavedStates[i]) {
+            case STATE_ENABLED: {
+                formatex(pstate, charsmax(pstate), "[E]");
+            }
+            case STATE_PAUSED: {
+                formatex(pstate, charsmax(pstate), "[P]");
+            }
+            case STATE_UNLOADED: {
+                formatex(pstate, charsmax(pstate), "[U]");
+            }
+            case STATE_DISABLED: {
+                formatex(pstate, charsmax(pstate), "[D]");
+            }
+        }
+
+        formatex(final, charsmax(final), "%s %s", pstate, name);
         num_to_str(i, info, charsmax(info));
-        menu_additem(menu, text, info);
+        menu_additem(menu, final, info);
     }
 
     menu_display(id, menu);
@@ -126,20 +146,24 @@ public menu_handler_plman(id, menu, item)
         switch (g_iPluginStates[i]) {
             case STATE_ENABLED: {
                 unpause("ac", PLUGINS[i]);
-                ekz_send_console(id, "ENABLED: %s", PLUGINS[i]);
+                g_iPluginSavedStates[i] = STATE_ENABLED;
             }
             case STATE_PAUSED: {
                 pause("ac", PLUGINS[i]);
-                ekz_send_console(id, "PAUSED: %s", PLUGINS[i]);
+                g_iPluginSavedStates[i] = STATE_PAUSED;
+            }
+            case STATE_UNLOADED: {
+                pause("dc", PLUGINS[i]);
+                g_iPluginSavedStates[i] = STATE_UNLOADED;
             }
             case STATE_DISABLED: {
-                pause("dc", PLUGINS[i]);
-                ekz_send_console(id, "DISABLED: %s", PLUGINS[i]);
+                g_iPluginSavedStates[i] = STATE_DISABLED;
+                // change the file itself to stop loading it
             }
         }
     }
 
-    ekz_send_chat(id, "Ran plugin settings. Check console for details.");
+    ekz_send_chat(id, "Ran plugin settings.");
     MenuShowPluginManager(id);
 
     return PLUGIN_HANDLED;
