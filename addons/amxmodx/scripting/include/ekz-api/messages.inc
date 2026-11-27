@@ -12,7 +12,8 @@
 
 // You can define these yourself in a plugin to overwrite the default.
 #if !defined EKZ_CHAT_TAG
-    #define EKZ_CHAT_TAG "^1[^4EKZ^1] "
+    // CromChat adds a space afterwards already.
+    #define EKZ_CHAT_TAG "^1[^4EKZ^1]"
 #endif
 #if !defined EKZ_CONSOLE_TAG
     #define EKZ_CONSOLE_TAG "[EKZ] "
@@ -21,6 +22,12 @@
 #if !defined CC_COLORS_TYPE
     #define CC_COLORS_TYPE CC_COLORS_STANDARD
 #endif
+
+#define CC_DONT_OVERWRITE_183_PRINT
+#define CC_DONT_OVERWRITE_ACTIVITY
+#define CC_DONT_OVERWRITE_CHATPRINT
+#define CC_DONT_OVERWRITE_COLORCHAT
+#define CC_DONT_OVERWRITE_WPMG
 
 #include <ekz-api/globals>
 #include <thirdparty/cromchat>
