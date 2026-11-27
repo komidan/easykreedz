@@ -38,10 +38,8 @@ stock MenuShowMain(id)
     menu_additem(menu, "Runner");
     menu_additem(menu, "Settings");
 
-#if !defined SERVER_BUILD
     if (ekz_player_has_access(id, ADMIN_CFG))
         menu_additem(menu, "Plugin Manager");
-#endif
 
     menu_display(id, menu);
 }
@@ -55,13 +53,11 @@ public MenuHandler_Main(id, menu, item)
 
     switch (item) {
         case 0: // Runner Menu
-            cmd_MenuShowRunner(id);
+            MenuShowRunner(id);
         case 1: // Settings
-            cmd_MenuShowSettings(id);
-#if !defined SERVER_BUILD
+            MenuShowSettings(id);
         case 2: // Plugin Manager
             client_cmd(id, "say /plman");
-#endif
         default:
             cmd_MenuShowMain(id);
     }
