@@ -1,5 +1,5 @@
 /**
- * Runner.sma
+ * runner.sma
  *
  * Runner/GoCheck functionality.
  */
@@ -11,7 +11,7 @@
 #include <ekz-api/hud>
 #include <ekz-api/player>
 
-enum _:EKZ_RunnerData
+enum _:RunnerData
 {
     Float:RUNNER_ORIGIN[3],
     Float:RUNNER_ANGLES[3],
@@ -20,7 +20,7 @@ enum _:EKZ_RunnerData
     RUNNER_GOCHECKS,
 };
 
-new g_RunnerData[MAXPLAYERS][EKZ_RunnerData];
+new g_RunnerData[MAXPLAYERS][RunnerData];
 
 stock SavePosition(id)
 {

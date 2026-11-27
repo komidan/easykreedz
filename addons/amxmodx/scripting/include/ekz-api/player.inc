@@ -9,7 +9,10 @@
 #endif
 #define __EKZ_API_PLAYER_INCLUDED__
 
+#include <amxmisc>
 #include <fakemeta>
+
+#pragma semicolon 1
 
 /**
  * Returns if the player is on the ground or not

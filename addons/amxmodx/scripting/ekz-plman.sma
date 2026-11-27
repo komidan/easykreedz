@@ -20,11 +20,11 @@
 #define PLUGIN_NAME   "EKZ-Plugin-Manager"
 #define PLUGIN_AUTHOR "komidan"
 
-enum PLUGIN_STATE {
-    STATE_ENABLED = 0,
-    STATE_PAUSED,
-    STATE_UNLOADED,
-    STATE_DISABLED
+enum PluginState {
+    PLUGIN_STATE_ENABLED = 0,
+    PLUGIN_STATE_PAUSED,
+    PLUGIN_STATE_UNLOADED,
+    PLUGIN_STATE_DISABLED
 };
 
 new const PLUGINS[][] = {
@@ -36,8 +36,8 @@ new const PLUGINS[][] = {
     "ekz-hook.amxx"
 };
 
-new PLUGIN_STATE:g_iPluginStates[sizeof(PLUGINS)];
-new PLUGIN_STATE:g_iPluginSavedStates[sizeof(PLUGINS)];
+new PluginState:g_iPluginStates[sizeof(PLUGINS)];
+new PluginState:g_iPluginSavedStates[sizeof(PLUGINS)];
 
 public plugin_init()
 {
@@ -76,31 +76,31 @@ MenuShowPluginManager(id)
 
     for (new i = 0; i < sizeof(PLUGINS); i++) {
         switch (g_iPluginStates[i]) {
-            case STATE_ENABLED: {
+            case PLUGIN_STATE_ENABLED: {
                 formatex(name, charsmax(name), "\w%s\w", PLUGINS[i]);
             }
-            case STATE_PAUSED: {
+            case PLUGIN_STATE_PAUSED: {
                 formatex(name, charsmax(name), "\y%s\w", PLUGINS[i]);
             }
-            case STATE_UNLOADED: {
+            case PLUGIN_STATE_UNLOADED: {
                 formatex(name, charsmax(name), "\r%s\w", PLUGINS[i]);
             }
-            case STATE_DISABLED: {
+            case PLUGIN_STATE_DISABLED: {
                 formatex(name, charsmax(name), "\d%s\w", PLUGINS[i]);
             }
         }
 
         switch (g_iPluginSavedStates[i]) {
-            case STATE_ENABLED: {
+            case PLUGIN_STATE_ENABLED: {
                 formatex(pstate, charsmax(pstate), "[E]");
             }
-            case STATE_PAUSED: {
+            case PLUGIN_STATE_PAUSED: {
                 formatex(pstate, charsmax(pstate), "[P]");
             }
-            case STATE_UNLOADED: {
+            case PLUGIN_STATE_UNLOADED: {
                 formatex(pstate, charsmax(pstate), "[U]");
             }
-            case STATE_DISABLED: {
+            case PLUGIN_STATE_DISABLED: {
                 formatex(pstate, charsmax(pstate), "[D]");
             }
         }
@@ -131,8 +131,8 @@ public MenuHandler_PluginManager(id, menu, item)
 
         // NOTE: Should this be swapped for modulos?
         // Wrap back to STATE_ENABLED
-        if (g_iPluginStates[plugin] > STATE_DISABLED) {
-            g_iPluginStates[plugin] = STATE_ENABLED;
+        if (g_iPluginStates[plugin] > PLUGIN_STATE_DISABLED) {
+            g_iPluginStates[plugin] = PLUGIN_STATE_ENABLED;
         }
 
         MenuShowPluginManager(id);
@@ -144,20 +144,20 @@ public MenuHandler_PluginManager(id, menu, item)
         // https://www.amxmodx.org/api/amxmodx/pause
         // https://www.amxmodx.org/api/amxmodx/unpause
         switch (g_iPluginStates[i]) {
-            case STATE_ENABLED: {
+            case PLUGIN_STATE_ENABLED: {
                 unpause("ac", PLUGINS[i]);
-                g_iPluginSavedStates[i] = STATE_ENABLED;
+                g_iPluginSavedStates[i] = PLUGIN_STATE_ENABLED;
             }
-            case STATE_PAUSED: {
+            case PLUGIN_STATE_PAUSED: {
                 pause("ac", PLUGINS[i]);
-                g_iPluginSavedStates[i] = STATE_PAUSED;
+                g_iPluginSavedStates[i] = PLUGIN_STATE_PAUSED;
             }
-            case STATE_UNLOADED: {
+            case PLUGIN_STATE_UNLOADED: {
                 pause("dc", PLUGINS[i]);
-                g_iPluginSavedStates[i] = STATE_UNLOADED;
+                g_iPluginSavedStates[i] = PLUGIN_STATE_UNLOADED;
             }
-            case STATE_DISABLED: {
-                g_iPluginSavedStates[i] = STATE_DISABLED;
+            case PLUGIN_STATE_DISABLED: {
+                g_iPluginSavedStates[i] = PLUGIN_STATE_DISABLED;
                 // change the file itself to stop loading it
             }
         }

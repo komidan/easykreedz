@@ -6,10 +6,13 @@
 
 // TODO: Fix the sprite drawing 1000s of times per second. Use Tasks?
 // TODO: Color the sprite optionally using a menu or hookcolor(r,g,b) command.
+// TODO: Add a global g_bHookUsed[MAXPLAYERS] check for each run.
 
 #include <amxmodx>
 #include <fakemeta>
 #include <xs>
+
+#pragma semicolon 1
 
 #include <ekz-api/cvar>
 #include <ekz-api/globals>
@@ -114,13 +117,10 @@ public cmd_HookOff(id)
 
 public OnPlayerPreThink(id)
 {
-    if (!is_user_alive(id)) {
+    if (!is_user_alive(id))
         return FMRES_IGNORED;
-    }
-
-    if (!g_bIsHooked[id]) {
+    if (!g_bIsHooked[id])
         return FMRES_IGNORED;
-    }
 
     new Float:origin[3];
     new Float:direction[3];

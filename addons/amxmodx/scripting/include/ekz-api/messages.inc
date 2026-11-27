@@ -32,6 +32,8 @@
 #include <ekz-api/globals>
 #include <thirdparty/cromchat>
 
+#pragma semicolon 1
+
 /**
  * Currently, only does CC_SetPrefix(), might do more later. Put this inside
  * your `plugin_init()` function to setup messages.

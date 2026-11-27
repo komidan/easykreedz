@@ -8,12 +8,16 @@
 
 #include <ekz-api/menu>
 #include <ekz-api/messages>
+#include <ekz-api/misc>
+
+#pragma semicolon 1
 
 stock PluginInit_Menus()
 {
     register_clcmd("say /ekz", "cmd_MenuShowMain");
     register_clcmd("chooseteam", "cmd_MenuShowMain");
     register_clcmd("buyammo1", "cmd_MenuShowRunner");
+    register_clcmd("buyammo2", "cmd_Nothing");
     register_clcmd("say /settings", "cmd_MenuShowSettings");
 }
 
@@ -154,7 +158,7 @@ public MenuHandler_Settings(id, menu, item)
 
     switch (item) {
         default:
-            ekz_send_chat(id, "settings!");
+            ekz_send_chat(id, "Settings is work in progress!");
     }
 
     menu_destroy(menu);

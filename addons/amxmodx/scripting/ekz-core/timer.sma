@@ -25,12 +25,12 @@ enum TimerType {
 };
 
 // A list of possible start timer classnames.
-new g_szStartTimerTargets[1][] = {
+new const g_szStartTimerTargets[][] = {
     "counter_start_button",
 };
 
 // A list of possible stop timer classnames.
-new g_szEndTimerTargets[1][] = {
+new const g_szEndTimerTargets[][] = {
     "counter_stop_button",
 };
 
@@ -44,17 +44,33 @@ new g_iEndTimerId;
 
 stock PluginInit_Timer()
 {
-    TimerInitEntities();
-
     register_clcmd("say /cancel", "cmd_CancelTimer");
 
     RegisterHam(Ham_Use, "func_button", "OnButtonUse", 0);
+
+    TimerInitEntities();
 }
 
 public ClientPutInServer_Timer(id)
 {
     g_eTimerState[id] = TIMER_INACTIVE;
     Runner_ResetPlayerStats(id);
+}
+
+public ClientDisconnected_Timer(id)
+{
+    g_eTimerState[id] = TIMER_INACTIVE;
+    Runner_ResetPlayerStats(id);
+}
+
+public cmd_TimerCancel(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    TimerCancel(id);
+
+    return PLUGIN_HANDLED;
 }
 
 stock TimerType:GetTimerNameType(const name[])
@@ -104,6 +120,8 @@ stock TimerInitEntities()
         log_amx("No end button found!");
 }
 
+// Ham_Use
+// https://amxmodx.org/api/ham_const
 public OnButtonUse(ent, caller, activator, use_type, Float:value)
 {
     if (!is_user_alive(activator) && ekz_player_is_indexed(activator))
@@ -127,16 +145,6 @@ stock TimerStart(id)
 
     Runner_ResetPlayerStats(id);
     cmd_MenuShowRunner(id);
-}
-
-public cmd_TimerCancel(id)
-{
-    if (!is_user_alive(id))
-        return PLUGIN_HANDLED;
-
-    TimerCancel(id);
-
-    return PLUGIN_HANDLED;
 }
 
 stock TimerCancel(id)

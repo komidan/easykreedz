@@ -12,6 +12,8 @@
 #include <amxmodx>
 #include <cvars>
 
+#pragma semicolon 1
+
 enum _:CvarData {
     CVAR_NAME[32],
     CVAR_DEFAULT[16],
@@ -30,7 +32,7 @@ enum _:CvarData {
  * @param cvars[][CvarData]        2D Array of Cvars
  * @param size                     sizeof(cvars)
  *
- * @return amount of ConVars registered
+ * @return amount of cvars registered
  */
 stock ekz_create_cvars(const cvars[][CvarData], size)
 {

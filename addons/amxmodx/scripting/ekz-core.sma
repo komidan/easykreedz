@@ -77,4 +77,5 @@ public client_putinserver(id)
 public client_disconnected(id)
 {
     ClientDisconnected_Respawn(id);
+    ClientDisconnected_Timer(id);
 }
