@@ -22,3 +22,28 @@ stock bool:ekz_player_onground(id)
 {
     return (pev(id, pev_flags) & FL_ONGROUND) != 0;
 }
+
+/**
+ * Returns if the player is ducking
+ *
+ * @param id           Player ID
+ *
+ * @return bool
+ */
+stock bool:ekz_player_is_ducking(id)
+{
+    return (pev(id, pev_flags) & FL_DUCKING) != 0;
+}
+
+/**
+ * Returns if the player is in the valid client index range
+ *     1 <= id <= MaxClients
+ *
+ * @param id           Player ID
+ *
+ * @return bool
+ */
+stock bool:ekz_player_is_indexed(id)
+{
+    return 1 <= id <= MaxClients;
+}
