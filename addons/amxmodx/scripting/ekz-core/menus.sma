@@ -9,7 +9,7 @@
 #include <ekz-api/menu>
 #include <ekz-api/messages>
 
-stock plugin_init_menus()
+stock PluginInit_Menus()
 {
     register_clcmd("say /ekz", "cmd_MenuShowMain");
     register_clcmd("chooseteam", "cmd_MenuShowMain");
@@ -92,12 +92,12 @@ stock MenuShowRunner(id)
 
     new checkpoint_text[32];
     formatex(checkpoint_text, charsmax(checkpoint_text), "Checkpoint #%d",
-        g_RunnerData[id][Runner_CHECKPOINTS]
+        g_RunnerData[id][RUNNER_CHECKPOINTS]
     );
 
     new gocheck_text[32];
     formatex(gocheck_text, charsmax(gocheck_text), "GoCheck #%d",
-        g_RunnerData[id][Runner_GOCHECKS]
+        g_RunnerData[id][RUNNER_GOCHECKS]
     );
 
     menu_additem(menu, checkpoint_text);

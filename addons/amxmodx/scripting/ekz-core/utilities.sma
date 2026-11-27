@@ -9,7 +9,7 @@
 
 #include <ekz-api/messages>
 
-stock plugin_init_utilities()
+stock PluginInit_Utilities()
 {
     register_clcmd("say /god", "cmd_God");
 }

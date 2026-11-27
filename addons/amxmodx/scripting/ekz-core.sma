@@ -45,10 +45,10 @@ public plugin_init()
 
     // If your plugin is large enough it is split across files, create a
     // `plugin_init_(filename)` function and put it here.
-    plugin_init_menus();
-    plugin_init_respawn();
-    plugin_init_timer();
-    plugin_init_utilities();
+    PluginInit_Menus();
+    PluginInit_Respawn();
+    PluginInit_Timer();
+    PluginInit_Utilities();
 
 #if defined DEBUG
     if (is_dedicated_server()) {
@@ -75,5 +75,10 @@ public plugin_init()
  */
 public client_putinserver(id)
 {
-    client_putinserver_timer(id);
+    ClientPutInServer_Timer(id);
+}
+
+public client_disconnected(id)
+{
+    ClientDisconnected_Respawn(id);
 }

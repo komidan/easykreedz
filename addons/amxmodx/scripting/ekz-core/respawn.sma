@@ -13,13 +13,20 @@
 #include <ekz-api/hud>
 
 #define TASK_PLAYER_RECOVER 2000
+#define TASK_DEATH_MESSAGE  2100
 
-stock plugin_init_respawn()
+stock PluginInit_Respawn()
 {
     register_concmd("kill", "cmd_KillPlayer");
     register_clcmd("say /kill", "cmd_KillPlayer");
 
     RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage");
+}
+
+stock ClientDisconnected_Respawn(id)
+{
+    remove_task(id + TASK_PLAYER_RECOVER);
+    remove_task(id + TASK_DEATH_MESSAGE);
 }
 
 public cmd_KillPlayer(id)
@@ -38,7 +45,9 @@ stock PlayerKill(id)
         return;
 
     remove_task(id + TASK_PLAYER_RECOVER);
-    set_task(0.1, "TaskSendDeathMessage", id);
+    remove_task(id + TASK_DEATH_MESSAGE);
+
+    set_task(0.1, "TaskSendDeathMessage", id + TASK_DEATH_MESSAGE);
 
     ExecuteHamB(Ham_Spawn, id);
 }
