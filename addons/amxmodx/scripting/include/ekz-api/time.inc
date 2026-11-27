@@ -20,7 +20,7 @@
  * @param len          len of buffer
  * @noreturn
  */
-stock ekz_get_current_date(const output[], len)
+stock ekz_get_current_date(output[], len)
 {
     get_time("%d-%b-%y", output, len);
 }
@@ -32,7 +32,7 @@ stock ekz_get_current_date(const output[], len)
  * @param len          len of buffer
  * @noreturn
  */
-stock ekz_get_current_time(const output[], len)
+stock ekz_get_current_time(output[], len)
 {
     get_time("%H:%M:%S", output, len);
 }
@@ -44,7 +44,7 @@ stock ekz_get_current_time(const output[], len)
  * @param len          len of buffer
  * @noreturn
  */
-stock ekz_get_current_datetime(const output[], len)
+stock ekz_get_current_datetime(output[], len)
 {
     get_time("%d-%b-%y %H:%M:%S", output, len);
 }
