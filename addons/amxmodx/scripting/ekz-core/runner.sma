@@ -1,20 +1,14 @@
 /**
- * checkpoints.inc
+ * Runner.sma
  *
- * Checkpoint/Gocheck implementation
+ * Runner/GoCheck functionality.
  */
-
-#if defined __EKZ_RUNNER_INCLUDED__
-    #endinput
-#endif
-#define __EKZ_RUNNER_INCLUDED__
 
 #include <fakemeta>
 
+#include <ekz-api/globals>
 #include <ekz-api/hud>
 #include <ekz-api/player>
-
-#include <ekz-core/globals>
 
 enum _:EKZ_Runner_PlayerData
 {
@@ -37,7 +31,7 @@ stock SavePosition(id)
         return PLUGIN_HANDLED;
     }
 
-    if (!IsPlayerOnGround(id)) {
+    if (!ekz_player_onground(id)) {
         ekz_hud_warning(id, "Cannot checkpoint in air!");
         return PLUGIN_HANDLED;
     }
@@ -57,7 +51,7 @@ stock GotoPosition(id)
     }
 
     if (g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS] == 0) {
-        ekz_hud_warning(id, "You don't have any checkpoints!");
+        ekz_hud_warning(id, "You don't have any Runner!");
         return PLUGIN_HANDLED;
     }
 
@@ -78,7 +72,7 @@ stock GotoPosition(id)
     return PLUGIN_HANDLED;
 }
 
-public Runner_ResetPlayerStats(id)
+stock Runner_ResetPlayerStats(id)
 {
     g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS] = 0;
     g_PlayerStats[id][Runner_PlayerStats_GOCHECKS] = 0;
@@ -91,7 +85,7 @@ public Runner_ResetPlayerStats(id)
     g_PlayerData[id][Runner_PlayerData_ANGLES][1] = 0.0;
     g_PlayerData[id][Runner_PlayerData_ANGLES][2] = 0.0;
 
-    // Refresh Menu, showing zero checkpoints/gochecks.
+    // Refresh Menu, showing zero Runner/gochecks.
     // Also serves to open the menu when starting a run.
     cmd_MenuShowRunner(id);
 

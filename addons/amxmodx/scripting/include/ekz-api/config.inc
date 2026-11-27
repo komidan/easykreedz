@@ -1,14 +1,13 @@
 /**
  * config.inc
  *
- * An API designed to simplify config parsing and directory management
- * within EasyKreedz.
+ * Easy config management for plugins.
  */
 
-#if defined __EKZ_CONFIG_INCLUDED__
+#if defined __EKZ_API_CONFIG_INCLUDED__
     #endinput
 #endif
-#define __EKZ_CONFIG_INCLUDED__
+#define __EKZ_API_CONFIG_INCLUDED__
 
 #define EKZ_CFG_DIR "easykreedz"
 
@@ -30,12 +29,14 @@ stock ekz_get_config_dir(buffer[], len)
 /**
  * Checks whether the EasyKreedz configuration directory exists.
  *
- * @return 1 if the directory exists, 0 otherwise
+ * @return bool
  */
-stock ekz_config_dir_exists()
+stock bool:ekz_config_dir_exists()
 {
     new cfg_dir[128];
     ekz_get_config_dir(cfg_dir, charsmax(cfg_dir));
+    if (!dir_exists(cfg_dir))
+        return false;
 
-    return dir_exists(cfg_dir);
+    return true;
 }

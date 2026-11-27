@@ -5,14 +5,14 @@
  * https://github.com/OciXCrom/CromChat
  */
 
-#if defined __EKZ_MESSAGES_INCLUDED__
+#if defined __EKZ_API_MESSAGES_INCLUDED__
     #endinput
 #endif
-#define __EKZ_MESSAGES_INCLUDED__
+#define __EKZ_API_MESSAGES_INCLUDED__
 
 // You can define these yourself in a plugin to overwrite the default.
 #if !defined EKZ_CHAT_TAG
-    #define EKZ_CHAT_TAG "^5[^4EKZ^5] ^1"
+    #define EKZ_CHAT_TAG "^1[^4EKZ^1] "
 #endif
 #if !defined EKZ_CONSOLE_TAG
     #define EKZ_CONSOLE_TAG "[EKZ] "
@@ -22,8 +22,8 @@
     #define CC_COLORS_TYPE CC_COLORS_STANDARD
 #endif
 
+#include <ekz-api/globals>
 #include <thirdparty/cromchat>
-#include <ekz-core/globals>
 
 /**
  * Currently, only does CC_SetPrefix(), might do more later. Put this inside
@@ -39,35 +39,32 @@ stock ekz_chat_init()
 /**
  * Sends a message to user's chat using EKZ_CHAT_TAG as a prefix.
  *
- * @param id        User ID
- * @param fmt       Format string
- * @param ...
+ * @param id        Player ID
+ * @param message   Format string
+ * @param ...       Format arguments
  *
  * @noreturn
  */
-stock ekz_send_chat(id, const fmt[], any:...)
+stock ekz_send_chat(id, const message[], any:...)
 {
     new buffer[256];
-    vformat(buffer, charsmax(buffer), fmt, 3);
+    vformat(buffer, charsmax(buffer), message, 3);
 
-    CC_SendMessage(id, "%s", buffer);
+    CC_SendMessage(id, buffer);
 }
 
 /**
  * Sends a chat message to all connected players using EKZ_CHAT_TAG.
  *
- * @param fmt       Format string
+ * @param message   Format string
  * @param ...       Format arguments
  *
  * @noreturn
  */
-stock ekz_send_chat_all(const fmt[], any:...)
+stock ekz_send_chat_all(const message[], any:...)
 {
-    new buffer[256];
-    vformat(buffer, charsmax(buffer), fmt, 2);
-
-    new players[MAXPLAYERS], num;
-    get_players(players, num, "ch");
+    new buffer[256], players[MAXPLAYERS], num;
+    vformat(buffer, charsmax(buffer), message, 2);
 
     for (new i = 0; i < num; i++) {
         ekz_send_chat(players[i], "%s", buffer);
@@ -77,16 +74,16 @@ stock ekz_send_chat_all(const fmt[], any:...)
 /**
  * Sends a message to user's console using EKZ_CONSOLE_TAG as a prefix.
  *
- * @param id        User ID
- * @param fmt       Format string
- * @param ...
+ * @param id        Player ID
+ * @param message   Format string
+ * @param ...       Format arguments
  *
  * @noreturn
  */
-stock ekz_send_console(id, const fmt[], any:...)
+stock ekz_send_console(id, const message[], any:...)
 {
     new buffer[256];
-    vformat(buffer, charsmax(buffer), fmt, 3);
+    vformat(buffer, charsmax(buffer), message, 3);
 
     client_print(id, print_console, "%s%s", EKZ_CONSOLE_TAG, buffer);
 }
@@ -94,21 +91,18 @@ stock ekz_send_console(id, const fmt[], any:...)
 /**
  * Sends a console message to all connected players using EKZ_CONSOLE_TAG.
  *
- * @param fmt       Format string
+ * @param message   Format string
  * @param ...       Format arguments
  *
  * @noreturn
  */
-stock ekz_send_console_all(const fmt[], any:...)
+stock ekz_send_console_all(const message[], any:...)
 {
-    new buffer[256];
-    vformat(buffer, charsmax(buffer), fmt, 2);
-
-    new players[MAXPLAYERS], num;
+    new buffer[256], players[MAXPLAYERS], num;
+    vformat(buffer, charsmax(buffer), message, 2);
     get_players(players, num, "ch");
 
     for (new i = 0; i < num; i++) {
         ekz_send_console(players[i], "%s", buffer);
     }
 }
-

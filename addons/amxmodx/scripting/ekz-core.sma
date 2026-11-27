@@ -1,62 +1,61 @@
 /**
  * ekz-core.sma
+ * Contains the Core of EasyKreedz (timer, demo)
  *
- * Contains the classical minimum for legal Kreedz'ing.
+ * This file should be used as a style-guide for all other plugins, and contains
+ * comments describing how to structure contributions.
  */
 
+// Includes should be spaced depending on if they come from the ekz-api or from
+// AMX Mod X's API. Sort them alphabetically.
 #include <amxmisc>
 #include <amxmodx>
-#include <hamsandwich>
 
 #include <ekz-api/config>
-#include <ekz-api/messages.inc>
+#include <ekz-api/globals>
+#include <ekz-api/messages>
+#include <ekz-api/version>
 
-#include <ekz-core/globals>
-#include <ekz-core/respawn>
-#include <ekz-core/timer>
-#include <ekz-core/utilities>
-#include <ekz-core/version>
-
-#include <ekz-core/menus/main>
-#include <ekz-core/menus/runner>
-#include <ekz-core/menus/settings>
-
+// Plugin specific options/defines here.
 #pragma semicolon 1
 
 #define PLUGIN_NAME     "EKZ-Core"
 #define PLUGIN_AUTHOR   "komidan"
 
-register_hams()
-{
-    RegisterHam(Ham_Use, "func_button", "OnButtonUse", 0); // timer.inc
-    RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage"); // respawn.inc
-}
+/**
+ * If your plugin is large enough to the point of spreading it out across
+ * multiple files, include them using this syntax after defining and included
+ * everything else. These includes do not and most likely can't be in
+ * alphabetical order.
+ */
+#include "ekz-core/shared.sma" // Place forwards and global declarations here.
+#include "ekz-core/respawn.sma"
+#include "ekz-core/runner.sma"
+#include "ekz-core/menus.sma"
+#include "ekz-core/timer.sma"
+#include "ekz-core/utilities.sma"
 
 public plugin_init()
 {
+    // Initializing things from the API comes first.
+    ekz_chat_init();
+
+    // Always register plugin before other code.
     register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
-    register_clcmd("say /ekz", "cmd_MenuShowMain");
-
-    // NOTE: Bindings for Menu options. Might be invasive to some
-    // players/servers? Could just remove the 'buyammo' ones and leave the
-    // 'chooseteam'.
-    register_clcmd("chooseteam", "cmd_MenuShowMain");
-    register_clcmd("buyammo1", "cmd_MenuShowRunner");
-    register_clcmd("buyammo2", "cmd_MenuShowSettings");
-
-    register_clcmd("say /god", "cmd_God");
-
-    ekz_chat_init(); // Sets the prefix for CromChat.
-
-    init_entities(); // For the Timer
-    register_hams(); // Register's all Hams for the ekz-core plugin.
+    // If your plugin is large enough it is split across files, create a
+    // `plugin_init_(filename)` function and put it here.
+    plugin_init_menus();
+    plugin_init_respawn();
+    plugin_init_timer();
+    plugin_init_utilities();
 
 #if defined DEBUG
     if (is_dedicated_server()) {
         log_amx("Running on a Dedicated Server");
         // server initialization here.
     } else {
+        // sv_lan 1 (?)
         log_amx("Running on a LAN Server");
     }
 #endif
@@ -70,9 +69,11 @@ public plugin_init()
     }
 }
 
+/**
+ * Similar to the `plugin_init_(filename)` function call, extend the name for
+ * all other included files.
+ */
 public client_putinserver(id)
 {
-    init_timer(id);
+    client_putinserver_timer(id);
 }
-
-// do #if defined SERVER for client_connextex/disconnected/remove?

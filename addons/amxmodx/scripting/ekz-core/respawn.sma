@@ -1,31 +1,28 @@
 /**
- * respawn.inc
+ * respawn.sma
  *
- * Prevent players from dying, respawning them at the start.
+ * Handles recovering HP after taking damage and instantly respawning after
+ * taking damage >= health.
  */
 
-#if defined __EKZ_RESPAWN_INCLUDED__
-    #endinput
-#endif
-#define __EKZ_RESPAWN_INCLUDED__
-
 #include <fun>
-
 #include <hamsandwich>
-#include <ekz-api/hud>
 
 #define TASK_PLAYER_RECOVER 2000
 
+stock plugin_init_respawn()
+{
+    RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage");
+}
+
+// Ham_TakeDamage
+// https://www.amxmodx.org/api/ham_const
 public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
 {
-    if (!is_user_alive(victim)) {
+    if (!is_user_alive(victim))
         return HAM_IGNORED;
-    }
-
     if (get_user_godmode(victim))
-    {
         return HAM_IGNORED;
-    }
 
     new Float:health;
     pev(victim, pev_health, health);
@@ -45,9 +42,8 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
 
 public TaskSendDeathMessage(id)
 {
-    if (!is_user_connected(id)) {
-        return
-    }
+    if (!is_user_connected(id))
+        return PLUGIN_HANDLED;
 
 #if defined DEBUG
     new name[32];
@@ -56,19 +52,18 @@ public TaskSendDeathMessage(id)
 #endif
 
     ekz_hud_warning(id, "You died!");
+
+    return PLUGIN_HANDLED;
 }
 
 public TaskRecoverPlayer(taskid)
 {
     new id = taskid - TASK_PLAYER_RECOVER;
 
-    if (!is_user_connected(id)) {
-        return;
-    }
-
-    if (!is_user_alive(id)) {
-        return;
-    }
+    if (!is_user_connected(id))
+        return PLUGIN_HANDLED;
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
 
 #if defined DEBUG
     new name[32];
@@ -77,4 +72,6 @@ public TaskRecoverPlayer(taskid)
 #endif
 
     set_pev(id, pev_health, 100.0);
+
+    return PLUGIN_HANDLED;
 }

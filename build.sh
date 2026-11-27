@@ -269,8 +269,9 @@ dbg "flags        = ${FLAGS[*]}"
 if [[ ${#SOURCES[@]} -eq 0 ]]; then
     while IFS= read -r file; do
         SOURCES+=("$file")
-    done < <(find "$SCRIPTING_DIR" -path "$SCRIPTING_DIR/include" \
-        -prune -o -name '*.sma' -print | sort)
+    done < <(
+        find "$SCRIPTING_DIR" -maxdepth 1 -type f -name '*.sma' | sort
+    )
 fi
 
 # ---------------------------------------------------------------------------- #

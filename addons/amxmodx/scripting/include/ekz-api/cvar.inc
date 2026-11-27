@@ -4,10 +4,10 @@
  * Makes creating CVARs for plugins easier.
  */
 
-#if defined __EKZ_CVAR_INCLUDED__
+#if defined __EKZ_API_CVAR_INCLUDED__
     #endinput
 #endif
-#define __EKZ_CVAR_INCLUDED__
+#define __EKZ_API_CVAR_INCLUDED__
 
 #include <cvars>
 
@@ -23,14 +23,15 @@ enum _:CvarData {
 };
 
 /**
- * Creates ConVars from a 2d array following the function signature of
+ * Creates ConVars from a 2D array following the function signature of
  * `create_cvar()` (https://www.amxmodx.org/api/cvars/create_cvar)
  *
  * @param cvars[][CvarData]        2D Array of Cvars
  * @param size                     sizeof(cvars)
+ *
  * @return amount of ConVars registered
  */
-stock CreateCvars(const cvars[][CvarData], size)
+stock ekz_create_cvars(const cvars[][CvarData], size)
 {
     new cvar;
     new registered;

@@ -10,23 +10,29 @@
 #include <amxmisc>
 #include <amxmodx>
 
+#include <ekz-api/globals>
+#include <ekz-api/menu>
 #include <ekz-api/messages>
-
-#include <ekz-core/globals>
-#include <ekz-core/version>
-#include <ekz-plugins-manager/plugins>
+#include <ekz-api/version>
 
 #pragma semicolon 1
 
 #define PLUGIN_NAME   "EKZ-Plugin-Manager"
 #define PLUGIN_AUTHOR "komidan"
 
-#define EKZ_PLUGINS_INI "plugins-easykreedz.ini"
-
 enum PLUGIN_STATE {
     STATE_ENABLED = 0,
     STATE_PAUSED,
     STATE_DISABLED,
+};
+
+new const PLUGINS[][] = {
+    // 7yPh00N's plugins for testing.
+    "mhud_speed.amxx",
+    "mhud_menu.amxx",
+    "input_overlay.amxx",
+
+    "ekz-hook.amxx"
 };
 
 new PLUGIN_STATE:g_iPluginStates[sizeof(PLUGINS)];

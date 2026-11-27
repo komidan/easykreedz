@@ -6,7 +6,7 @@ plugins/
 
 # Helix ignore files for file-picker
 .ignore
+.zed/
 
 # personal files
-PERSONAL.md
-PERSONAL-*
+PERSONAL*

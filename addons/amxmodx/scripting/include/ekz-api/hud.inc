@@ -1,18 +1,23 @@
 /**
  * hud.inc
  *
- * helpers for drawing simple messages to the hud
+ * Helpers for drawing messages to the HUD.
  */
 
-#if defined __EKZ_HUD_INCLUDED__
-  #endinput
+#if defined __EKZ_API_HUD_INCLUDED__
+    #endinput
 #endif
-#define __EKZ_HUD_INCLUDED__
+#define __EKZ_API_HUD_INCLUDED__
+
+#include <amxmodx>
+#include <string>
 
 enum _:HUD_Channels {
-  HUD_ANY     = -1,
-  HUD_REGULAR =  1,
-  HUD_WARNING =  4
+    HUD_ANY     = -1,
+    HUD_REGULAR =  1,
+ // HUD_        =  2,
+ // HUD_        =  3,
+    HUD_WARNING =  4
 };
 
 /**

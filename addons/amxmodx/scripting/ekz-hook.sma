@@ -12,10 +12,9 @@
 #include <xs>
 
 #include <ekz-api/cvar>
+#include <ekz-api/globals>
 #include <ekz-api/messages>
-
-#include <ekz-core/globals>
-#include <ekz-core/version>
+#include <ekz-api/version>
 
 #define PLUGIN_NAME "EKZ-Hook"
 #define PLUGIN_AUTHOR "komidan"
@@ -45,15 +44,13 @@ public plugin_init()
 {
     register_plugin(PLUGIN_NAME, EKZ_VERSION, PLUGIN_AUTHOR);
 
-    CreateCvars(g_Cvars, sizeof(g_Cvars));
+    ekz_create_cvars(g_Cvars, sizeof(g_Cvars));
     g_cvHookSpeed = get_cvar_pointer("ekz_hookspeed");
     g_cvHookVisible = get_cvar_pointer("ekz_hookvisible");
 
     register_forward(FM_PlayerPreThink, "OnPlayerPreThink");
 
     register_clcmd("/hookspeed", "cmd_HookSpeed");
-    // register_clcmd("/hookcolor", "cmd_HookColor");
-
     register_clcmd("+hook", "cmd_HookOn");
     register_clcmd("-hook", "cmd_HookOff");
 }
