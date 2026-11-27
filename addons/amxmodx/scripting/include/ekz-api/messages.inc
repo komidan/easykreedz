@@ -50,7 +50,7 @@ stock ekz_send_chat(id, const message[], any:...)
     new buffer[256];
     vformat(buffer, charsmax(buffer), message, 3);
 
-    CC_SendMessage(id, buffer);
+    CC_SendMessage(id, "%s", buffer);
 }
 
 /**
@@ -64,6 +64,7 @@ stock ekz_send_chat(id, const message[], any:...)
 stock ekz_send_chat_all(const message[], any:...)
 {
     new buffer[256], players[MAXPLAYERS], num;
+    get_players(players, num, "ch");
     vformat(buffer, charsmax(buffer), message, 2);
 
     for (new i = 0; i < num; i++) {
@@ -99,8 +100,8 @@ stock ekz_send_console(id, const message[], any:...)
 stock ekz_send_console_all(const message[], any:...)
 {
     new buffer[256], players[MAXPLAYERS], num;
-    vformat(buffer, charsmax(buffer), message, 2);
     get_players(players, num, "ch");
+    vformat(buffer, charsmax(buffer), message, 2);
 
     for (new i = 0; i < num; i++) {
         ekz_send_console(players[i], "%s", buffer);
