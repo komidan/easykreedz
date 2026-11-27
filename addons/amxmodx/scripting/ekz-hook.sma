@@ -108,10 +108,7 @@ public cmd_HookOn(id)
 
 public cmd_HookOff(id)
 {
-    if (is_user_alive(id))
-    {
-        g_bIsHooked[id] = false;
-    }
+    g_bIsHooked[id] = false;
     return PLUGIN_HANDLED;
 }
 
