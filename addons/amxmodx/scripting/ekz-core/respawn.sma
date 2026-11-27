@@ -12,6 +12,10 @@
 
 #include <ekz-api/hud>
 
+#pragma semicolon 1
+
+// These are added to the player id to make sure there are no conflicts with
+// other tasks.
 #define TASK_PLAYER_RECOVER 2000
 #define TASK_DEATH_MESSAGE  2100
 
@@ -65,7 +69,6 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     pev(victim, pev_health, health);
 
     if (damage >= health ) {
-
         PlayerKill(victim);
         return HAM_SUPERCEDE;
     }
@@ -76,8 +79,10 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     return HAM_HANDLED;
 }
 
-public TaskSendDeathMessage(id)
+public TaskSendDeathMessage(taskid)
 {
+    new id = taskid - TASK_DEATH_MESSAGE;
+
     if (!is_user_connected(id))
         return PLUGIN_HANDLED;
 
