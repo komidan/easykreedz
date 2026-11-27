@@ -44,7 +44,7 @@ new g_iEndTimerId;
 
 stock PluginInit_Timer()
 {
-    register_clcmd("say /cancel", "cmd_CancelTimer");
+    register_clcmd("say /cancel", "cmd_TimerCancel");
 
     RegisterHam(Ham_Use, "func_button", "OnButtonUse", 0);
 
