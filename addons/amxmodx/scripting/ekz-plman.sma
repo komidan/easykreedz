@@ -66,7 +66,7 @@ MenuShowPluginManager(id)
     formatex(menu_name, charsmax(menu_name),
         "%s%s", EKZ_MENU_TAG, "Plugin Manager"
     );
-    new menu = menu_create(menu_name, "menu_handler_plman");
+    new menu = menu_create(menu_name, "MenuHandler_PluginManager");
 
     // handle generating the plugin list
     menu_additem(menu, "Save Options");
@@ -113,7 +113,7 @@ MenuShowPluginManager(id)
     menu_display(id, menu);
 }
 
-public menu_handler_plman(id, menu, item)
+public MenuHandler_PluginManager(id, menu, item)
 {
     if (item == MENU_EXIT) {
         menu_destroy(menu);
