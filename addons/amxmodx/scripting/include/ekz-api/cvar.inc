@@ -9,6 +9,7 @@
 #endif
 #define __EKZ_API_CVAR_INCLUDED__
 
+#include <amxmodx>
 #include <cvars>
 
 enum _:CvarData {

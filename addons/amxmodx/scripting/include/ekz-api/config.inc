@@ -11,6 +11,9 @@
 
 #define EKZ_CFG_DIR "easykreedz"
 
+#include <amxmisc>
+#include <amxmodx>
+
 /**
  * Retrieves the EasyKreedz configuration directory
  *

@@ -9,6 +9,8 @@
 #endif
 #define __EKZ_API_PLAYER_INCLUDED__
 
+#include <fakemeta>
+
 /**
  * Returns if the player is on the ground or not
  *
