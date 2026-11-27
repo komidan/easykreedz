@@ -4,7 +4,10 @@
  * All Menus, Handlers
  */
 
+#include <amxmodx>
+
 #include <ekz-api/menu>
+#include <ekz-api/messages>
 
 stock plugin_init_menus()
 {
@@ -65,12 +68,12 @@ public cmd_MenuShowRunner(id)
 
     new checkpoint_text[32];
     formatex(checkpoint_text, charsmax(checkpoint_text), "Checkpoint #%d",
-        g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS]
+        g_RunnerData[id][Runner_CHECKPOINTS]
     );
 
     new gocheck_text[32];
     formatex(gocheck_text, charsmax(gocheck_text), "GoCheck #%d",
-        g_PlayerStats[id][Runner_PlayerStats_GOCHECKS]
+        g_RunnerData[id][Runner_GOCHECKS]
     );
 
     menu_additem(menu, checkpoint_text);

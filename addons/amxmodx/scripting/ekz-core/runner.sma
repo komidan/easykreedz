@@ -4,26 +4,23 @@
  * Runner/GoCheck functionality.
  */
 
+#include <amxmodx>
 #include <fakemeta>
 
 #include <ekz-api/globals>
 #include <ekz-api/hud>
 #include <ekz-api/player>
 
-enum _:EKZ_Runner_PlayerData
+enum _:EKZ_RunnerData
 {
-    Float:Runner_PlayerData_ORIGIN[3],
-    Float:Runner_PlayerData_ANGLES[3],
+    Float:Runner_ORIGIN[3],
+    Float:Runner_ANGLES[3],
+    bool:Runner_DUCKED,
+    Runner_CHECKPOINTS,
+    Runner_GOCHECKS,
 };
 
-enum _:EKZ_Runner_PlayerStats
-{
-    Runner_PlayerStats_CHECKPOINTS,
-    Runner_PlayerStats_GOCHECKS
-};
-
-new Float:g_PlayerData[MAXPLAYERS][EKZ_Runner_PlayerData];
-new g_PlayerStats[MAXPLAYERS][EKZ_Runner_PlayerStats];
+new g_RunnerData[MAXPLAYERS][EKZ_RunnerData];
 
 stock SavePosition(id)
 {
@@ -36,22 +33,21 @@ stock SavePosition(id)
         return PLUGIN_HANDLED;
     }
 
-    pev(id, pev_origin, g_PlayerData[id][Runner_PlayerData_ORIGIN]);
-    pev(id, pev_v_angle, g_PlayerData[id][Runner_PlayerData_ANGLES]);
+    pev(id, pev_origin, g_RunnerData[id][Runner_ORIGIN]);
+    pev(id, pev_v_angle, g_RunnerData[id][Runner_ANGLES]);
 
-    g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS]++;
+    g_RunnerData[id][Runner_CHECKPOINTS]++;
 
     return PLUGIN_HANDLED;
 }
 
 stock GotoPosition(id)
 {
-    if (!is_user_alive(id)) {
+    if (!is_user_alive(id))
         return PLUGIN_HANDLED;
-    }
 
-    if (g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS] == 0) {
-        ekz_hud_warning(id, "You don't have any Runner!");
+    if (g_RunnerData[id][Runner_CHECKPOINTS] == 0) {
+        ekz_hud_warning(id, "You don't have any Checkpoints!");
         return PLUGIN_HANDLED;
     }
 
@@ -61,33 +57,29 @@ stock GotoPosition(id)
     set_pev(id, pev_fuser2, 0); // 0 is default stamina.
     set_pev(id, pev_velocity, zero);
 
-    engfunc(EngFunc_SetOrigin, id, g_PlayerData[id][Runner_PlayerData_ORIGIN]);
+    engfunc(EngFunc_SetOrigin, id, g_RunnerData[id][Runner_ORIGIN]);
 
     set_pev(id, pev_v_angle, zero);
-    set_pev(id, pev_angles, g_PlayerData[id][Runner_PlayerData_ANGLES]);
+    set_pev(id, pev_angles, g_RunnerData[id][Runner_ANGLES]);
     set_pev(id, pev_fixangle, 1);
 
-    g_PlayerStats[id][Runner_PlayerStats_GOCHECKS]++;
+    g_RunnerData[id][Runner_GOCHECKS]++;
 
     return PLUGIN_HANDLED;
 }
 
 stock Runner_ResetPlayerStats(id)
 {
-    g_PlayerStats[id][Runner_PlayerStats_CHECKPOINTS] = 0;
-    g_PlayerStats[id][Runner_PlayerStats_GOCHECKS] = 0;
+    g_RunnerData[id][Runner_CHECKPOINTS] = 0;
+    g_RunnerData[id][Runner_GOCHECKS] = 0;
 
-    g_PlayerData[id][Runner_PlayerData_ORIGIN][0] = 0.0;
-    g_PlayerData[id][Runner_PlayerData_ORIGIN][1] = 0.0;
-    g_PlayerData[id][Runner_PlayerData_ORIGIN][2] = 0.0;
+    g_RunnerData[id][Runner_ORIGIN][0] = 0.0;
+    g_RunnerData[id][Runner_ORIGIN][1] = 0.0;
+    g_RunnerData[id][Runner_ORIGIN][2] = 0.0;
 
-    g_PlayerData[id][Runner_PlayerData_ANGLES][0] = 0.0;
-    g_PlayerData[id][Runner_PlayerData_ANGLES][1] = 0.0;
-    g_PlayerData[id][Runner_PlayerData_ANGLES][2] = 0.0;
-
-    // Refresh Menu, showing zero Runner/gochecks.
-    // Also serves to open the menu when starting a run.
-    cmd_MenuShowRunner(id);
+    g_RunnerData[id][Runner_ANGLES][0] = 0.0;
+    g_RunnerData[id][Runner_ANGLES][1] = 0.0;
+    g_RunnerData[id][Runner_ANGLES][2] = 0.0;
 
     return;
 }
