@@ -5,14 +5,42 @@
  * taking damage >= health.
  */
 
+#include <amxmodx>
+#include <fakemeta>
 #include <fun>
 #include <hamsandwich>
+
+#include <ekz-api/hud>
 
 #define TASK_PLAYER_RECOVER 2000
 
 stock plugin_init_respawn()
 {
+    register_concmd("kill", "cmd_KillPlayer");
+    register_clcmd("say /kill", "cmd_KillPlayer");
+
     RegisterHam(Ham_TakeDamage, "player", "OnTakeDamage");
+}
+
+public cmd_KillPlayer(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    PlayerKill(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock PlayerKill(id)
+{
+    if (!is_user_alive(id))
+        return;
+
+    remove_task(id + TASK_PLAYER_RECOVER);
+    set_task(0.1, "TaskSendDeathMessage", id);
+
+    ExecuteHamB(Ham_Spawn, id);
 }
 
 // Ham_TakeDamage
@@ -28,9 +56,8 @@ public OnTakeDamage(victim, inflictor, attacker, Float:damage, damagebits)
     pev(victim, pev_health, health);
 
     if (damage >= health ) {
-        set_task(0.1, "TaskSendDeathMessage", victim);
-        ExecuteHamB(Ham_Spawn, victim);
 
+        PlayerKill(victim);
         return HAM_SUPERCEDE;
     }
 

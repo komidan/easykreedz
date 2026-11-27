@@ -13,9 +13,21 @@ stock plugin_init_menus()
 {
     register_clcmd("say /ekz", "cmd_MenuShowMain");
     register_clcmd("chooseteam", "cmd_MenuShowMain");
+    register_clcmd("buyammo1", "cmd_MenuShowRunner");
+    register_clcmd("say /settings", "cmd_MenuShowSettings");
 }
 
 public cmd_MenuShowMain(id)
+{
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowMain(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowMain(id)
 {
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
@@ -25,12 +37,14 @@ public cmd_MenuShowMain(id)
 
     menu_additem(menu, "Runner");
     menu_additem(menu, "Settings");
+
+    // TODO: This still will appear on a server if someone doesn't have proper
+    // access rights.
 #if !defined SERVER_BUILD
     menu_additem(menu, "Plugin Manager");
 #endif
-    menu_display(id, menu);
 
-    return PLUGIN_HANDLED;
+    menu_display(id, menu);
 }
 
 public MenuHandler_Main(id, menu, item)
@@ -60,6 +74,16 @@ public MenuHandler_Main(id, menu, item)
 
 public cmd_MenuShowRunner(id)
 {
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowRunner(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowRunner(id)
+{
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
         "%sRunner", EKZ_MENU_TAG
@@ -80,8 +104,6 @@ public cmd_MenuShowRunner(id)
     menu_additem(menu, gocheck_text);
 
     menu_display(id, menu);
-
-    return PLUGIN_HANDLED;
 }
 
 public MenuHandler_Runner(id, menu, item)
@@ -107,6 +129,16 @@ public MenuHandler_Runner(id, menu, item)
 
 public cmd_MenuShowSettings(id)
 {
+    if (!is_user_alive(id))
+        return PLUGIN_HANDLED;
+
+    MenuShowSettings(id);
+
+    return PLUGIN_HANDLED;
+}
+
+stock MenuShowSettings(id)
+{
     new menu_name[32];
     formatex(menu_name, charsmax(menu_name),
         "%s%s", EKZ_MENU_TAG, "Settings"
@@ -116,8 +148,6 @@ public cmd_MenuShowSettings(id)
     menu_additem(menu, "Work in Progress.");
 
     menu_display(id, menu);
-
-    return PLUGIN_HANDLED;
 }
 
 public MenuHandler_Settings(id, menu, item)
