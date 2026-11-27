@@ -161,9 +161,18 @@ stock FinishTimer(id)
     get_mapname(mapname, charsmax(mapname));
 
     ekz_format_gametime(GetTime(id), time, charsmax(time));
-    ekz_send_chat(id, "Finished ^4%s ^1in ^5%s^1",
-        mapname, time
+
+#if defined SERVER
+    new name[32];
+    get_user_name(id, name, charsmax(name));
+    ekz_send_chat_all("Player ^4%s ^1finished ^4%s ^1in ^5%s^1",
+        name, mapname, time
     );
+#else
+    ekz_send_chat(id, "Player ^%s ^1finished ^4%s ^1in ^5%s^1",
+        name, mapname, time
+    );
+#endif
 
     return;
 }
